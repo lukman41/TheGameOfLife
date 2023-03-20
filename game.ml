@@ -21,6 +21,7 @@ type career = {
 }
 
 type player = {
+  name : string;
   money : int;
   career : career;
   position : spot;
@@ -31,3 +32,19 @@ type t = {
   players : player list;
   game_board : board;
 }
+
+let spin =
+  let r = Random.int 12 in
+  if r = 0 then 1 else r - 1
+
+let move g s = g
+
+let end_game g =
+  let lst_players = g.players in
+  let rec check_max lst max player =
+    match lst with
+    | [] -> player.name
+    | h :: t ->
+        if h.money > max then check_max t h.money h else check_max t max player
+  in
+  check_max lst_players 0 (List.hd lst_players)

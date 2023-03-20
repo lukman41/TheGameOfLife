@@ -10,8 +10,7 @@ type object_phrase = string list
 
     - If the player command is ["quit     "], then the object phrase is [Quit].
 
-    - If the player command is ["  spin     "], then the object phrase is again
-      [Spin].*)
+    - If the player command is ["  spin     "], then the object phrase is [Spin].*)
 
 (** The type [command] represents a player command that is decomposed into a
     verb and possibly an object phrase. *)

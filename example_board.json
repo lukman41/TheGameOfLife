@@ -1,25 +1,29 @@
 {
-  "spots": [
+  "board": [
     {
-      "id": "start spot",
-      "description": "Welcome to the game!",
-      "next spot": "spot 2"
+      "id": 1,
+      "prompt": "collect 500",
+      "value": 500,
+      "next": 2
     },
     {
-      "id": "spot 2",
-      "description": "You're at spot 2!",
-      "next spot": "spot 3"
+      "id": 2,
+      "prompt": "pay 100",
+      "value": -100,
+      "next": 3
     },
     {
-      "id": "spot 3",
-      "description": "You're at spot 3!",
-      "next spot": "end spot"
+      "id": 3,
+      "prompt": "pay 100",
+      "value": -100,
+      "next": 4
     },
     {
-      "id": "end spot",
-      "description": "You're at the end!",
-      "next spot": ""
+      "id": 4,
+      "prompt": "pay 100",
+      "value": -100,
+      "next": 5
     }
   ],
-  "start spot": "start spot"
+  "start spot": 1
 }

@@ -32,7 +32,7 @@ val parse : string -> command
     the verb. Examples:
 
     - [parse "quit"] is [Quit].
-    - [parse "choose Doctor"] is [Choose "Doctor"]
+    - [parse "choose Doctor"] is [Choose \["Doctor"\]]
     - [parse "spin"] is [Spin].
 
     Requires: [str] contains only alphanumeric (A-Z, a-z, 0-9) and space

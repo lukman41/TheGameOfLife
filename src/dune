@@ -1,0 +1,4 @@
+(library
+ (name game_of_life)
+ (public_name Game_of_life )
+ (libraries ))

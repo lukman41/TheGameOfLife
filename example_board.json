@@ -1,0 +1,25 @@
+{
+  "spots": [
+    {
+      "id": "start spot",
+      "description": "Welcome to the game!",
+      "next spot": "spot 2"
+    },
+    {
+      "id": "spot 2",
+      "description": "You're at spot 2!",
+      "next spot": "spot 3"
+    },
+    {
+      "id": "spot 3",
+      "description": "You're at spot 3!",
+      "next spot": "end spot"
+    },
+    {
+      "id": "end spot",
+      "description": "You're at the end!",
+      "next spot": ""
+    }
+  ],
+  "start spot": "start spot"
+}

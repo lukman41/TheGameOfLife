@@ -8,13 +8,10 @@ type object_phrase = string list
     internal, or trailing spaces. The list is in the same order as the words in
     the original player command. For example:
 
-    - If the player command is ["quit     "], then the object phrase is
-      [Quit].
+    - If the player command is ["quit     "], then the object phrase is [Quit].
 
-    - If the player command is ["  spin     "], then the object phrase is
-      again [Spin].*)
-
-    
+    - If the player command is ["  spin     "], then the object phrase is again
+      [Spin].*)
 
 (** The type [command] represents a player command that is decomposed into a
     verb and possibly an object phrase. *)
@@ -22,6 +19,7 @@ type object_phrase = string list
 type command =
   | Quit
   | Spin
+  | Choose of object_phrase
 
 exception Empty
 (** Raised when an empty command is parsed. *)
@@ -35,6 +33,7 @@ val parse : string -> command
     the verb. Examples:
 
     - [parse "quit"] is [Quit].
+    - [parse "choose Doctor"] is [Choose "Doctor"]
     - [parse "spin"] is [Spin].
 
     Requires: [str] contains only alphanumeric (A-Z, a-z, 0-9) and space
@@ -43,5 +42,5 @@ val parse : string -> command
     Raises: [Empty] if [str] is the empty string or contains only spaces.
 
     Raises: [Malformed] if the command is malformed. A command is malformed if
-    the verb is not "spin", or "quit", if the verb is "quit" or "spin" and there is a
-    non-empty object phrase. *)
+    the verb is not "spin", or "quit", if the verb is "quit" or "spin" and there
+    is a non-empty object phrase. *)

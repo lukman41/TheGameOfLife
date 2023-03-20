@@ -1,9 +1,11 @@
-(*my name is BLeu*)
 type t
-(* the current game *)
 
-val from_json : Yojson.Basic.t -> t
-(** [from_json j] is the board that [j] represents. Requires: [j] is a valid
-    JSON board representation. *)
+val spin : int
+(** [spin] is a randomly generated number from [1, 10] inclusive*)
 
-val get_state : t -> t
+val move : t -> int -> t
+(** [move g s] is the updated game after the current user moves [s] spots. It
+    alters the current player and the player list *)
+
+val end_game : t -> string
+(** [end_game g] is the name of the winner of the game based on their money amounts *)

@@ -70,3 +70,27 @@ let end_game g =
         if h.money > max then check_max t h.money h else check_max t max player
   in
   check_max lst_players 0 (List.hd lst_players)
+
+let find_max players assoc_lst =
+  let max_spin =
+    List.map (fun x -> snd x) assoc_lst
+    |> List.fold_left (fun acc x -> max acc x) 0
+  in
+  let rec spin_winners lst =
+    match lst with
+    | [] -> []
+    | h :: t -> if snd h = max_spin then h :: spin_winners t else spin_winners t
+  in
+  (List.hd (spin_winners assoc_lst), players)
+
+let first_turn_spin players =
+  let rec prompt_players p assoc_spun_lst =
+    match p with
+    | [] -> find_max players assoc_spun_lst
+    | h :: t -> (
+        print_endline (h.name ^ ", type 'spin' to spin");
+        match read_line () with
+        | "spin" -> prompt_players t ((h, spin) :: assoc_spun_lst)
+        | _ -> prompt_players p assoc_spun_lst)
+  in
+  prompt_players players []

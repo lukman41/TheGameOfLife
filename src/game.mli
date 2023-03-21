@@ -1,3 +1,4 @@
+type career
 type player
 type t
 
@@ -12,5 +13,5 @@ val end_game : t -> string
 (** [end_game g] is the name of the winner of the game based on their money
     amounts *)
 
-val make_player : string -> string -> player
-(* [make_player n c] takes in a name and a career an returns a player *)
+val make_player : string -> career option -> player
+(* [make_player n c] takes in a name and a career and returns a player *)

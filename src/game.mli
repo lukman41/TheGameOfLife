@@ -13,4 +13,5 @@ val end_game : t -> string
     amounts *)
 
 val make_player : string -> string -> player
-(* [make_player n c] takes in a name and a career an returns a player *)
+(* [make_player n c] takes in a name and a career an returns a player at the
+   start of the game *)

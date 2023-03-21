@@ -72,8 +72,11 @@ let end_game g =
   check_max lst_players 0 (List.hd lst_players)
 
 let find_max players assoc_lst =
- let players = List.sort (fun x y -> max (snd x) (snd y)) assoc_lst |> List.map (fun x -> fst x) in
-  (List.hd (players), players)
+  let players =
+    List.sort (fun x y -> max (snd x) (snd y)) assoc_lst
+    |> List.map (fun x -> fst x)
+  in
+  (List.hd players, players)
 
 let first_turn_spin players =
   let rec prompt_players p assoc_spun_lst =
@@ -82,12 +85,14 @@ let first_turn_spin players =
     | h :: t -> (
         print_endline (h.name ^ ", type 'spin' to spin");
         match read_line () with
-        | "spin" -> prompt_players t ((h, spin) :: assoc_spun_lst)
+        | "spin" ->
+            let player_spin =
+              let r = Random.int 12 in
+              if r = 0 then 1 else r - 1
+            in
+            print_endline (h.name ^ " spun a " ^ string_of_int player_spin);
+            prompt_players t ((h, player_spin) :: assoc_spun_lst)
         | _ -> prompt_players p assoc_spun_lst)
   in
   let current_player, players = prompt_players players [] in
-  {
-    current_player;
-    players;
-    game_board = []
-  }
+  { current_player; players; game_board = [] }

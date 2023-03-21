@@ -19,11 +19,10 @@ let main () =
   let player_4 = make_player (read_line ()) None in
   let player_list = [ player_1; player_2; player_3; player_4 ] in
   print_endline "Take turns spinning the wheel. The highest spin will go first.";
-  print_string " Type '";
-  ANSITerminal.print_string [ ANSITerminal.yellow ] "s";
-  ANSITerminal.print_string [ ANSITerminal.magenta ] "p";
-  ANSITerminal.print_string [ ANSITerminal.blue ] "i";
-  ANSITerminal.print_string [ ANSITerminal.green ] "n";
-  print_string "' to start. "
+  let game = first_turn_spin player_list in
+  let game2 = player_payday game 2000 in
+  let winner = end_game game2 in
+  print_string ("The winner is " ^ winner ^ " ")
+  
 
 let () = main ()

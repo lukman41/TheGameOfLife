@@ -1,6 +1,7 @@
 type career
 type player
 type t
+type board
 
 val spin : int
 (** [spin] is a randomly generated number from [1, 10] inclusive*)
@@ -24,7 +25,6 @@ val player_payday : t -> int -> t
   needs a payday, it gives the the payday and updates the game_state to have the
   next player in the list become the current player *)
 
-val first_turn_spin : player list -> player * player list
+val first_turn_spin : player list -> t
 (** [first_turn_spin l p] takes in a player list and after spinning for all
-    players returns the player which will go first as well as the list of
-    players in order of their turn *)
+    players returns the updated game state *)

@@ -75,7 +75,7 @@ let find_max players assoc_lst =
  let players = List.sort (fun x y -> max (snd x) (snd y)) assoc_lst |> List.map (fun x -> fst x) in
   (List.hd (players), players)
 
-let first_turn_spin players board =
+let first_turn_spin players =
   let rec prompt_players p assoc_spun_lst =
     match p with
     | [] -> find_max players assoc_spun_lst
@@ -85,4 +85,9 @@ let first_turn_spin players board =
         | "spin" -> prompt_players t ((h, spin) :: assoc_spun_lst)
         | _ -> prompt_players p assoc_spun_lst)
   in
-  prompt_players players []
+  let current_player, players = prompt_players players [] in
+  {
+    current_player;
+    players;
+    game_board = []
+  }

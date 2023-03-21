@@ -35,6 +35,7 @@ type t = {
 }
 
 let make_player name career = { name; career; money = 10000; position = Start }
+let player_name player = player.name
 
 let spin =
   let r = Random.int 12 in

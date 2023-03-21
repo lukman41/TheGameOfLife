@@ -16,10 +16,10 @@ val end_game : t -> string
 val make_player : string -> career option -> player
 (* [make_player n c] takes in a name and a career and returns a player *)
 
-(* val player_name : player -> string
-[player_name p ] take in a player and returns the name field of the player *)
+val player_name : player -> string
+(* [player_name p ] take in a player and returns the name field of the player *)
 
-(* val first_turn_spin : player list -> player * player list
+val first_turn_spin : player list -> player * player list
 (* [first_turn_spin l p] takes in a player list and after spinning for all
    players returns the player which will go first as well as the list of players
-   in order of their turn *) *)
+   in order of their turn *)

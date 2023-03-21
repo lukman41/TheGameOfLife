@@ -17,6 +17,11 @@ let main () =
   print_endline "Player_4's name:";
   let player_4 = make_player (read_line ()) None in
   let player_list = [ player_1; player_2; player_3; player_4 ] in
+<<<<<<< HEAD
   ()
+=======
+  ();
+  print_string "Take turns spinning the wheel. The highest spin will go first."
+>>>>>>> 99d50dfab1b7e2d2e643e3db97c5ca404db2b87f
 
 let () = main ()

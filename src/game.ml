@@ -1,4 +1,5 @@
 (* open Yojson.Basic.Util *)
+open ANSITerminal
 
 type spot =
   | Start
@@ -83,14 +84,22 @@ let first_turn_spin players =
     match p with
     | [] -> find_max players assoc_spun_lst
     | h :: t -> (
-        print_endline (h.name ^ ", type 'spin' to spin");
+        Stdlib.print_string (h.name ^ ", type ");
+        ANSITerminal.print_string [ ANSITerminal.magenta ] "'s";
+        ANSITerminal.print_string [ ANSITerminal.blue ] "p";
+        ANSITerminal.print_string [ ANSITerminal.green ] "i";
+        ANSITerminal.print_string [ ANSITerminal.yellow ] "n'";
+        print_endline " to spin.";
         match read_line () with
         | "spin" ->
             let player_spin =
+              Random.self_init ();
               let r = Random.int 12 in
               if r = 0 then 1 else r - 1
             in
-            print_endline (h.name ^ " spun a " ^ string_of_int player_spin);
+            ANSITerminal.print_string [ ANSITerminal.green ]
+              (h.name ^ " spun a " ^ string_of_int player_spin);
+            print_newline ();
             prompt_players t ((h, player_spin) :: assoc_spun_lst)
         | _ -> prompt_players p assoc_spun_lst)
   in

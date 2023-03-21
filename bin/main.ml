@@ -22,7 +22,12 @@ let main () =
   let game = first_turn_spin player_list in
   let game2 = player_payday game 2000 in
   let winner = end_game game2 in
-  print_string ("The winner is " ^ winner ^ " ")
-  
+  ANSITerminal.print_string [ ANSITerminal.magenta ] "W";
+  ANSITerminal.print_string [ ANSITerminal.blue ] "I";
+  ANSITerminal.print_string [ ANSITerminal.green ] "N";
+  ANSITerminal.print_string [ ANSITerminal.yellow ] "N";
+  ANSITerminal.print_string [ ANSITerminal.magenta ] "E";
+  ANSITerminal.print_string [ ANSITerminal.blue ] "R";
+  print_string ("!: " ^ winner ^ " ")
 
 let () = main ()

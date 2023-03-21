@@ -16,8 +16,7 @@ let main () =
   let player_3 = make_player (read_line ()) None in
   print_endline "Player_4's name:";
   let player_4 = make_player (read_line ()) None in
-  let player_list = [player_1;player_2;player_3;player_4] in 
+  let player_list = [ player_1; player_2; player_3; player_4 ] in
   ()
 
 let () = main ()
-g

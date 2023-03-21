@@ -19,6 +19,11 @@ val make_player : string -> career option -> player
 val player_name : player -> string
 (* [player_name p ] take in a player and returns the name field of the player *)
 
+val player_payday : t -> int -> t
+(*[player_payday g s] takes the current game_state where the current_player
+  needs a payday, it gives the the payday and updates the game_state to have the
+  next player in the list become the current player *)
+
 val first_turn_spin : player list -> player * player list
 (* [first_turn_spin l p] takes in a player list and after spinning for all
    players returns the player which will go first as well as the list of players

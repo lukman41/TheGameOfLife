@@ -37,6 +37,24 @@ type t = {
 let make_player name career = { name; career; money = 10000; position = Start }
 let player_name player = player.name
 
+let player_payday game salary =
+  let new_players =
+    let new_player =
+      {
+        name = game.current_player.name;
+        career = game.current_player.career;
+        money = game.current_player.money + salary;
+        position = game.current_player.position;
+      }
+    in
+    List.tl game.players @ [ new_player ]
+  in
+  {
+    current_player = List.hd new_players;
+    players = new_players;
+    game_board = game.game_board;
+  }
+
 let spin =
   let r = Random.int 12 in
   if r = 0 then 1 else r - 1

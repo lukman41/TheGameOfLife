@@ -1,6 +1,7 @@
 (* open Yojson.Basic.Util *)
 
 type spot =
+  | Start
   | CollectPay of {
       id : int;
       prompt : string;
@@ -32,6 +33,8 @@ type t = {
   players : player list;
   game_board : board;
 }
+
+let make_player name career = { name; career; money = 10000; position = Start }
 
 let spin =
   let r = Random.int 12 in

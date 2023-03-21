@@ -1,3 +1,4 @@
+type player
 type t
 
 val spin : int
@@ -8,4 +9,8 @@ val move : t -> int -> t
     alters the current player and the player list *)
 
 val end_game : t -> string
-(** [end_game g] is the name of the winner of the game based on their money amounts *)
+(** [end_game g] is the name of the winner of the game based on their money
+    amounts *)
+
+val make_player : string -> string -> player
+(* [make_player n c] takes in a name and a career an returns a player *)

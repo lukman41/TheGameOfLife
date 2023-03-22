@@ -95,7 +95,7 @@ let first_turn_spin players =
             let player_spin =
               Random.self_init ();
               let r = Random.int 12 in
-              if r = 0 then 1 else r - 1
+              if (r = 0 || r = 1) then 1 else r - 1
             in
             ANSITerminal.print_string [ ANSITerminal.green ]
               (h.name ^ " spun a " ^ string_of_int player_spin);

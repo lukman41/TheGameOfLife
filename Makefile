@@ -11,3 +11,11 @@ utop:
 
 play:
 	OCAMLRUNPARAM=b dune exec bin/main.exe
+
+zip:
+	rm -f fourLifers.zip
+	zip -r fourLifers.zip . -x@exclude.lst
+
+clean:
+	dune clean
+	rm -f fourLifers.zip

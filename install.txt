@@ -1,0 +1,4 @@
+List of steps:
+1) Download the .zip file from CMS submission of MS2
+2) Unzip the file
+3) 

@@ -1,0 +1,32 @@
+---
+# Members of your group.
+group:
+  - name: Lukman Moyosore
+    netid: lom4
+  - name: Bleu Sanchez
+    netid: aas329
+  - name: Joshua Jaquez
+    netid: jj498
+  - name: Nadia Barakatain
+    netid: nnb28
+# Your PM.
+pm:
+  name: Allen Chen
+  netid: ac2324
+# Set to false if you don't want your gallery entry to be public.
+publish: true
+# Pithy title
+title: "The Game of Life"
+# OK if this is a Cornell Github link, but public gallery viewers won't be able to see it.
+git-repo: "https://github.coecis.cornell.edu/jj498/4Lifers"
+# If you have no demo screencast, replace the url string with an empty string ""
+demo-video-url: ""
+# Write a short, attention-grabbing description of your project.
+desc: >
+  Our project is a simulation of The Game of Life. It supports multiple players
+  and displays to each player their current position on the board, their
+  savings and more. In the game, the players will be led through a series of
+  life events and decisions that will alter their monetary savings. The player
+  with the most money at the end of the game wins.
+
+  Standard terminal I/O is supported.

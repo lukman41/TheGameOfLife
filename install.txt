@@ -1,4 +1,5 @@
 List of steps:
+0) Follow the directions listed in the textbook to install opam and make switch
 1) Download the .zip file from CMS submission of MS2
 2) Create a folder in your working directory named "fourLifers"
 3) Drag the .zip file downloaded from CMS into the created "fourLifers"

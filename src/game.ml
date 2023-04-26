@@ -57,8 +57,8 @@ let player_payday game salary =
   }
 
 let spin =
-  let r = Random.int 12 in
-  if r = 0 || r = 1 then 1 else r - 1
+  let r = Random.int 10 in
+  r + 1
 
 let move g s = g
 

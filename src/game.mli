@@ -6,7 +6,7 @@ type board
 val spin : int
 (** [spin] is a randomly generated number from [1, 10] inclusive*)
 
-val move : t -> int -> t
+val move : t -> t
 (** [move g s] is the updated game after the current user moves [s] spots. It
     alters the current player and the player list *)
 

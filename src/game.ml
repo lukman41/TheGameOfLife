@@ -2,19 +2,32 @@
 open ANSITerminal
 
 type spot =
-  | Start
-  | Retire
-  | Payday of {
-      id : int;
-      prompt : string;
-      value : int;
-      next : spot option;
-    }
-  | LifeChoice of {
-      id : int;
+  | Start of { next : spot option }
+  | Retire of { next : spot option }
+  | Payday of { next : spot option }
+  | Action of { next : spot option }
+  | Married_Stop of {
       prompt : string;
       next : spot option;
     }
+  | Family_Stop of {
+      prompt : string;
+      next : spot option;
+    }
+  | Crisis_Stop of {
+      prompt : string;
+      next : spot option;
+    }
+  | Retire_Early_Stop of {
+      prompt : string;
+      next : spot option;
+    }
+  | House of { next : spot option }
+  | Friend of { next : spot option }
+  | Pet of { next : spot option }
+  | Baby of { next : spot option }
+  | Twins of { next : spot option }
+  | Career of { next : spot option }
 
 type board = spot list
 
@@ -36,6 +49,7 @@ type player = {
   career : career option;
   position : spot;
   houses : house list;
+  pegs : int;
 }
 
 type t = {
@@ -44,7 +58,16 @@ type t = {
   game_board : board;
 }
 
-let make_player name career = { name; career; money = 250000; position = Start }
+let make_player name career =
+  {
+    name;
+    career;
+    money = 250000;
+    position = Start { next = None };
+    houses = [];
+    pegs = 0;
+  }
+
 let player_name player = player.name
 
 let player_payday game salary =
@@ -55,6 +78,8 @@ let player_payday game salary =
         career = game.current_player.career;
         money = game.current_player.money + salary;
         position = game.current_player.position;
+        houses = [];
+        pegs = game.current_player.pegs;
       }
     in
     List.tl game.players @ [ new_player ]
@@ -66,10 +91,60 @@ let player_payday game salary =
   }
 
 let spin =
+  Random.self_init ();
   let r = Random.int 10 in
   r + 1
 
-let move g s = g
+let get_next_position pos =
+  match pos with
+  | Start { next } -> next
+  | Retire { next } -> failwith "tried to move from retire spot"
+  | Payday { next } -> next
+  | Action { next } -> next
+  | Married_Stop { prompt; next } -> next
+  | Family_Stop { prompt; next } -> next
+  | Crisis_Stop { prompt; next } -> next
+  | Retire_Early_Stop { prompt; next } -> next
+  | House { next } -> next
+  | Friend { next } -> next
+  | Pet { next } -> next
+  | Baby { next } -> next
+  | Twins { next } -> next
+  | Career { next } -> next
+
+let move_player_spot p =
+  {
+    name = p.name;
+    money = p.money;
+    career = p.career;
+    position = Option.get (get_next_position p.position);
+    houses = p.houses;
+    pegs = p.pegs;
+  }
+
+let rec move_helper g spin_number =
+  match spin_number with
+  | 0 -> (
+      match g.current_player.position with
+      | x (* every spot type *) -> g)
+  | _ ->
+      let moved_player = move_player_spot g.current_player in
+      {
+        current_player = moved_player;
+        players = moved_player :: List.tl g.players;
+        game_board = g.game_board;
+      }
+(* patten match on current players spot to check if its payday or stop or
+   retire *)
+
+let move g =
+  let s = spin in
+  move_helper g s
+
+let rec move_helper g s =
+  match s with
+  | 0 -> g
+  | x -> g
 
 let end_game g =
   let lst_players = g.players in

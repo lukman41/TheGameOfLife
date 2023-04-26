@@ -23,11 +23,19 @@ type career = {
   salary : int;
 }
 
+type house = {
+  name : string;
+  purchase_price : int;
+  sell_red : int;
+  sell_black : int;
+}
+
 type player = {
   name : string;
   money : int;
   career : career option;
   position : spot;
+  houses : house list;
 }
 
 type t = {

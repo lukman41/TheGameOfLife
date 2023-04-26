@@ -3,7 +3,8 @@ open ANSITerminal
 
 type spot =
   | Start
-  | CollectPay of {
+  | Retire
+  | Payday of {
       id : int;
       prompt : string;
       value : int;

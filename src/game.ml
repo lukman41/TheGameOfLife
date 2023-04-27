@@ -122,24 +122,75 @@ let move_player_spot p =
     pegs = p.pegs;
   }
 
+let landed_spot_operations g =
+  (*all functions should return updated game state*)
+  match g.current_player.position with
+  | Start _ -> failwith "unimplented"
+  | Retire _ ->
+      failwith "Undone"
+      (*function to take player out of game so they can wait for other players
+        to finish*)
+  | Payday _ ->
+      failwith "unimplemented" (*funtion to pay players their bonus salary*)
+  | Action _ -> failwith "unimplemented" (*function to draw action card*)
+  | Married_Stop { prompt; next } ->
+      failwith "unimplemented" (*function to preform stop choice*)
+  | Family_Stop { prompt; next } ->
+      failwith "unimplemente" (*function to preform stop choice*)
+  | Crisis_Stop { prompt; next } ->
+      failwith "unimplemented" (*function to preform stop choice*)
+  | Retire_Early_Stop { prompt; next } ->
+      failwith "unimplemented" (*function to preform stop choice*)
+  | House _ -> failwith "unimplemented" (*function to draw house card*)
+  | Friend _ -> failwith "unimplemented" (*function to preform add peg choice*)
+  | Pet _ -> failwith "unimplemented" (*function to preform add peg choice*)
+  | Baby _ -> failwith "unimplemented" (*function to preform add peg choice*)
+  | Twins _ -> failwith "unimplemented" (*function to preform add peg choice*)
+  | Career _ -> failwith "unimplemented" (*function to draw career card*)
+
 let rec move_helper g spin_number =
   match spin_number with
-  | 0 -> (
-      match g.current_player.position with
-      | x (* every spot type *) -> g)
+  | 0 -> landed_spot_operations g
   | _ ->
       let moved_player = move_player_spot g.current_player in
-      {
-        current_player = moved_player;
-        players = moved_player :: List.tl g.players;
-        game_board = g.game_board;
-      }
-(* patten match on current players spot to check if its payday or stop or
-   retire *)
+      let game_with_player_moved =
+        {
+          current_player = moved_player;
+          players = moved_player :: List.tl g.players;
+          game_board = g.game_board;
+        }
+      in
+      passed_spot_operations game_with_player_moved spin_number
 
-let move g =
-  let s = spin in
-  move_helper g s
+and passed_spot_operations g spin_number =
+  (* all branches should call move helper again except retire. For example at a
+     payday, pay out the bonus salary, then call move helper with one less spin.
+     At a stop prompt and get the choice, then preform any necessary actions and
+     prompt for player to spin again, calling move helper with that new spin
+     number. We can use the same retire function whether you land on it or pass
+     it. *)
+  match g.current_player.position with
+  | Retire _ ->
+      failwith "Undone"
+      (*function to take player out of game so they can wait for other players
+        to finish*)
+  | Payday _ ->
+      failwith "unimplemented" (*funtion to pay players their bonus salary*)
+  | Married_Stop { prompt; next } ->
+      failwith "unimplemented" (*function to preform stop choice*)
+  | Family_Stop { prompt; next } ->
+      failwith "unimplemente" (*function to preform stop choice*)
+  | Crisis_Stop { prompt; next } ->
+      failwith "unimplemented" (*function to preform stop choice*)
+  | Retire_Early_Stop { prompt; next } ->
+      failwith "unimplemented" (*function to preform stop choice*)
+  | _ -> move_helper g (spin_number - 1)
+(*Since you dont do anything when you pass the rest of the spots,only when you land on
+  them, we can just call the helper with the player moved one spot over and one
+  less spot to go*)
+
+let prompt_for_spin p = failwith "unimplemented"
+let move_current_player g = move_helper g (prompt_for_spin g.current_player)
 
 let rec move_helper g s =
   match s with

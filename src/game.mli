@@ -5,18 +5,22 @@ type board
 type spot
 
 val set_player_start : bool -> spot
-(** [set_player_start b] returns whether the player's starting spot will be from the College start or the Career start spot *)
+(** [set_player_start b] returns whether the player's starting spot will be from
+    the College start or the Career start spot *)
 
 val set_player_career : bool -> career option
-(** [set_player_career b] returns whether the player's starting career will be based on if they chose to go college (None) or not (a career that dosent require a degree)*)
+(** [set_player_career b] returns whether the player's starting career will be
+    based on if they chose to go college (None) or not (a career that dosent
+    require a degree)*)
 
 val spin : int
 (** [spin] is a randomly generated number from [1, 10] inclusive*)
 
-val move_current_player : t -> t
-(** [move_current_player g] returns the updated game state after one players
+val move_current_player : t -> int -> t
+(** [move_current_player g i] returns the updated game state after one players
     full turn in the game, encompassing their spin, moving across the board and
-    any actions completed *)
+    any actions completed. this function handles switching of current players
+    after one players turn.s*)
 
 val end_game : t -> string
 (** [end_game g] is the name of the winner of the game based on their money
@@ -44,16 +48,18 @@ val get_next_position : spot -> spot option
 val move_player_spot : player -> player
 (** [move_player_spot p] moves input players spot up by one*)
 
-val prompt_for_spin : player -> int
-(**[prompt_for_spin p] prompts a player through the command shell to spin, and
-   returns the int of their spin number*)
+val landed_spot_operations : t -> int -> t
+(**[landed_spot_operations g] preforms the actions needed for the spot that a
+   player lands on.*)
 
-val landed_spot_operations : t ->int -> t
-(**[landed_spot_operations g] preforms the actions needed for the spot that a player lands on.*)
+val passed_spot_operations : t -> int -> t
+(**[passed_spot_operations g] preforms the actions needed for the spot that a
+   player passes.*)
 
-val passed_spot_operations : t ->int-> t
-(**[passed_spot_operations g] preforms the actions needed for the spot that a player passes.*)
+val active_players : t -> player list
+(* [active_players g] returns a list of the active players in the game state *)
 
-val play : t -> t 
-(**[play g] is the actual running of the game, and should only return a game state once all players have retired.*)
+val current_player : t -> player
+(* [current_player g] returns the current player in game g *)
 
+val current_player_name : player -> string

@@ -64,7 +64,8 @@ type player = {
 
 type t = {
   current_player : player;
-  players : player list;
+  active_players : player list;
+  retired_players : player list;
   game_board : board;
 }
 
@@ -104,11 +105,12 @@ let player_payday game salary =
         has_degree = game.current_player.has_degree;
       }
     in
-    List.tl game.players @ [ new_player ]
+    List.tl game.active_players @ [ new_player ]
   in
   {
     current_player = List.hd new_players;
-    players = new_players;
+    active_players = new_players;
+    retired_players = game.retired_players;
     game_board = game.game_board;
   }
 
@@ -166,7 +168,9 @@ let landed_spot_operations g =
       failwith "unimplemented" (*function to preform stop choice*)
   | RetireEarlyStop { prompt; next } ->
       failwith "unimplemented" (*function to preform stop choice*)
-  | House _ -> failwith "unimplemented" (*function to draw a house card ask if player wants to buy, and *)
+  | House _ ->
+      failwith "unimplemented"
+      (*function to draw a house card ask if player wants to buy, and *)
   | Friend _ -> failwith "unimplemented" (*function to preform add peg choice*)
   | Pet _ -> failwith "unimplemented" (*function to preform add peg choice*)
   | Baby _ -> failwith "unimplemented" (*function to preform add peg choice*)
@@ -181,7 +185,8 @@ let rec move_helper g spin_number =
       let game_with_player_moved =
         {
           current_player = moved_player;
-          players = moved_player :: List.tl g.players;
+          active_players = moved_player :: List.tl g.active_players;
+          retired_players = g.retired_players;
           game_board = g.game_board;
         }
       in
@@ -214,10 +219,10 @@ and passed_spot_operations g spin_number =
   land on them, we can just call the helper with the player moved one spot over
   and one less spot to go*)
 
-let prompt_for_spin p = failwith "unimplemented"
-let move_current_player g = move_helper g (prompt_for_spin g.current_player)
+let move_current_player g i = move_helper g i
+
 let end_game g =
-  let lst_players = g.players in
+  let lst_players = g.active_players in
   let rec check_max lst max player =
     match lst with
     | [] -> player.name
@@ -257,11 +262,9 @@ let first_turn_spin players =
             prompt_players t ((h, player_spin) :: assoc_spun_lst)
         | _ -> prompt_players p assoc_spun_lst)
   in
-  let current_player, players = prompt_players players [] in
-  { current_player; players; game_board = [] }
+  let current_player, active_players = prompt_players players [] in
+  { current_player; active_players; retired_players = []; game_board = [] }
 
-let rec play g = failwith "unimplemented" (*this function should take in a game state
-
-the "base case" is when each player's position is Retire, at that point, this can call end game
-
-the recursive case is a call to move_current_player with the game state, after that call, change the current player to the next player in line and call play again. The tricky part here is what to do when one player retires and the other players do not, i think we could take that player out of the player list, but that will cause problems down the road. *)
+let active_players g = g.active_players
+let current_player g = g.current_player
+let current_player_name p = p.name

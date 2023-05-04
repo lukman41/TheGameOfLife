@@ -30,6 +30,10 @@ type spot =
       next : spot option;
       paths : spot * spot;
     }
+  | GraduationStop of {
+      prompt: string;
+      next: spot option;
+  }
   | House of { next : spot option }
   | Friend of { next : spot option }
   | Pet of { next : spot option }
@@ -130,6 +134,7 @@ let get_next_position pos =
   | FamilyStop { prompt; next } -> next
   | CrisisStop { prompt; next } -> next
   | RetireEarlyStop { prompt; next } -> next
+  | GraduationStop { prompt; next } -> next
   | House { next } -> next
   | Friend { next } -> next
   | Pet { next } -> next
@@ -151,7 +156,7 @@ let move_player_spot p =
 let landed_spot_operations g =
   (*all functions should return updated game.t*)
   match g.current_player.position with
-  | StartCollege _ -> failwith "unimplented"
+  | StartCollege _ -> failwith "unimplemented"
   | StartCareer _ -> failwith "unimplemented"
   | Retire _ ->
       failwith "Undone"
@@ -161,20 +166,20 @@ let landed_spot_operations g =
       failwith "unimplemented" (*funtion to pay players their bonus salary*)
   | Action _ -> failwith "unimplemented" (*function to draw action card*)
   | MarriedStop { prompt; next } ->
-      failwith "unimplemented" (*function to preform stop choice*)
+      failwith "unimplemented" (*function to perform stop choice*)
   | FamilyStop { prompt; next } ->
-      failwith "unimplemente" (*function to preform stop choice*)
+      failwith "unimplemented" (*function to perform stop choice*)
   | CrisisStop { prompt; next } ->
-      failwith "unimplemented" (*function to preform stop choice*)
+      failwith "unimplemented" (*function to perform stop choice*)
   | RetireEarlyStop { prompt; next } ->
-      failwith "unimplemented" (*function to preform stop choice*)
-  | House _ ->
-      failwith "unimplemented"
-      (*function to draw a house card ask if player wants to buy, and *)
-  | Friend _ -> failwith "unimplemented" (*function to preform add peg choice*)
-  | Pet _ -> failwith "unimplemented" (*function to preform add peg choice*)
-  | Baby _ -> failwith "unimplemented" (*function to preform add peg choice*)
-  | Twins _ -> failwith "unimplemented" (*function to preform add peg choice*)
+      failwith "unimplemented" (*function to perform stop choice*)
+  | GraduationStop { prompt; next } ->
+      failwith "unimplemented" (* function to perform stop choice and check if you graduated *)
+  | House _ -> failwith "unimplemented" (*function to draw a house card ask if player wants to buy, and *)
+  | Friend _ -> failwith "unimplemented" (*function to perform add peg choice*)
+  | Pet _ -> failwith "unimplemented" (*function to perform add peg choice*)
+  | Baby _ -> failwith "unimplemented" (*function to perform add peg choice*)
+  | Twins _ -> failwith "unimplemented" (*function to perform add peg choice*)
   | Career _ -> failwith "unimplemented" (*function to draw career card*)
 
 let rec move_helper g spin_number =
@@ -195,7 +200,7 @@ let rec move_helper g spin_number =
 and passed_spot_operations g spin_number =
   (* all branches should call move helper again except retire. For example at a
      payday, pay out the bonus salary, then call move helper with one less spin.
-     At a stop prompt and get the choice, then preform any necessary actions and
+     At a stop prompt and get the choice, then perform any necessary actions and
      prompt for player to spin again, calling move helper with that new spin
      number. We can use the same retire function whether you land on it or pass
      it. *)
@@ -205,15 +210,17 @@ and passed_spot_operations g spin_number =
       (*function to take player out of game so they can wait for other players
         to finish*)
   | Payday _ ->
-      failwith "unimplemented" (*funtion to pay players their bonus salary*)
+      failwith "unimplemented" (*function to pay players their bonus salary*)
   | MarriedStop { prompt; next } ->
-      failwith "unimplemented" (*function to preform stop choice*)
+      failwith "unimplemented" (*function to perform stop choice*)
   | FamilyStop { prompt; next } ->
-      failwith "unimplemente" (*function to preform stop choice*)
+      failwith "unimplemente" (*function to perform stop choice*)
   | CrisisStop { prompt; next } ->
-      failwith "unimplemented" (*function to preform stop choice*)
+      failwith "unimplemented" (*function to perform stop choice*)
   | RetireEarlyStop { prompt; next } ->
-      failwith "unimplemented" (*function to preform stop choice*)
+      failwith "unimplemented" (*function to perform stop choice*)
+  | GraduationStop { prompt; next } ->
+      failwith "unimplemented" (* function to perform stop and check if you graduated *)
   | _ -> move_helper g (spin_number - 1)
 (*Since you dont do anything when you pass the rest of the spots,only when you
   land on them, we can just call the helper with the player moved one spot over

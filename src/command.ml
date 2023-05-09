@@ -3,6 +3,7 @@ type object_phrase = string list
 type command =
   | Quit
   | Spin
+  | Start
   | Choose of object_phrase
 
 exception Empty
@@ -19,6 +20,7 @@ let parse str =
       match (h, t) with
       | "spin", [] -> Spin
       | "quit", [] -> Quit
+      | "start", [] -> Start
       | "choose", [] -> raise Empty
       | "choose", _ -> Choose t
       | _, _ -> raise Malformed)

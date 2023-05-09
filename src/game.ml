@@ -31,9 +31,9 @@ type spot =
       paths : spot * spot;
     }
   | GraduationStop of {
-      prompt: string;
-      next: spot option;
-  }
+      prompt : string;
+      next : spot option;
+    }
   | House of { next : spot option }
   | Friend of { next : spot option }
   | Pet of { next : spot option }
@@ -81,14 +81,12 @@ let set_player_career = function
   | true -> None
   | false -> failwith "function to draw career cards"
 
-let make_player name career =
-  let goes_to_college = false in
-  (* prompt player if they want to go to college or not, set to false for now *)
+let make_player name choice =
   {
     name;
-    career;
+    career = set_player_career choice;
     money = 250000;
-    position = set_player_start goes_to_college;
+    position = set_player_start choice;
     houses = [];
     pegs = 0;
     has_degree = false;
@@ -174,8 +172,11 @@ let landed_spot_operations g =
   | RetireEarlyStop { prompt; next } ->
       failwith "unimplemented" (*function to perform stop choice*)
   | GraduationStop { prompt; next } ->
-      failwith "unimplemented" (* function to perform stop choice and check if you graduated *)
-  | House _ -> failwith "unimplemented" (*function to draw a house card ask if player wants to buy, and *)
+      failwith "unimplemented"
+      (* function to perform stop choice and check if you graduated *)
+  | House _ ->
+      failwith "unimplemented"
+      (*function to draw a house card ask if player wants to buy, and *)
   | Friend _ -> failwith "unimplemented" (*function to perform add peg choice*)
   | Pet _ -> failwith "unimplemented" (*function to perform add peg choice*)
   | Baby _ -> failwith "unimplemented" (*function to perform add peg choice*)
@@ -220,7 +221,8 @@ and passed_spot_operations g spin_number =
   | RetireEarlyStop { prompt; next } ->
       failwith "unimplemented" (*function to perform stop choice*)
   | GraduationStop { prompt; next } ->
-      failwith "unimplemented" (* function to perform stop and check if you graduated *)
+      failwith "unimplemented"
+      (* function to perform stop and check if you graduated *)
   | _ -> move_helper g (spin_number - 1)
 (*Since you dont do anything when you pass the rest of the spots,only when you
   land on them, we can just call the helper with the player moved one spot over
@@ -246,6 +248,7 @@ let find_max players assoc_lst =
   (List.hd players, players)
 
 let first_turn_spin players =
+  print_endline "Take turns spinning the wheel. The highest spin will go first.";
   let rec prompt_players p assoc_spun_lst =
     match p with
     | [] -> find_max players assoc_spun_lst

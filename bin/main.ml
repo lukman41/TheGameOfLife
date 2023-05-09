@@ -27,6 +27,10 @@ let rec prompt_for_spin g =
         ANSITerminal.print_string [ ANSITerminal.red ]
           {|That Command was a choose, try "spin" or "quit" |};
         prompt_for_spin g
+    | Start ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a start command, try "spin" or "quit" |};
+        prompt_for_spin g
   with
   | Empty ->
       ANSITerminal.print_string [ ANSITerminal.red ]
@@ -71,7 +75,11 @@ let rec number_of_players_prompt () =
     | Quit -> exit 0
     | Spin ->
         ANSITerminal.print_string [ ANSITerminal.red ]
-          {|to make a choice type "choose" before the number you want to enter |};
+          {|That was a spin command, to make a choice type "choose" before the number you want to enter |};
+        number_of_players_prompt ()
+    | Start ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a start command, to make a choice type "choose" before the number you want to enter |};
         number_of_players_prompt ()
   with
   | Empty ->
@@ -83,10 +91,92 @@ let rec number_of_players_prompt () =
         {|That command was malformed, try "choose 4" or something like that |};
       number_of_players_prompt ()
 
-let rec prompt_for_name_and_college l = failwith "todo"
-(* rn i have an int of how many players are in the game, need to build up a list of tuples containing the player name and the  choice of college or not. *)
+let rec player_name_prompt i =
+  try
+    print_endline ("Player_" ^ string_of_int i ^ "'s name: ");
+    let input = read_line () in
+    if input = "" then raise Empty else input
+  with Empty ->
+    ANSITerminal.print_string [ ANSITerminal.red ] {|That name was empty.|};
+    player_name_prompt i
 
+let rec go_to_college_prompt name =
+  (* uses Command.mli to prompt the player with the name they just used on if
+     they want to go college or not. *)
+  print_endline
+    (name
+   ^ {|, do you want to go to college, or start your career? Type "choose yes" or "choose no"|}
+    );
+  try
+    match Command.parse (read_line ()) with
+    | Choose i -> (
+        match String.concat " " i with
+        | "yes" -> true
+        | "no" -> false
+        | _ -> raise Malformed)
+    | Quit -> exit 0
+    | Spin ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a spin command, to make a choice type "choose" before the choice you want to make |};
+        go_to_college_prompt name
+    | Start ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a start command, to make a choice type "choose" before the choice you want to make |};
+        go_to_college_prompt name
+  with
+  | Empty ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That command was empty, try " choose yes " or something like that |};
+      go_to_college_prompt name
+  | Malformed ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That command was malformed, try "choose no" or something like that |};
+      go_to_college_prompt name
 
+let rec prompt_for_name_and_college acc i =
+  (* takes in a list acc and int i and prompts each player for their name and
+     choice in college, returning a list of string*bool tuples.*)
+  match i with
+  | 0 -> acc
+  | _ ->
+      let name = player_name_prompt i in
+      prompt_for_name_and_college
+        ((name, go_to_college_prompt name) :: acc)
+        (i - 1)
+
+let player_selection () =
+  List.map
+    (fun (s, b) -> make_player s b)
+    (prompt_for_name_and_college [] (number_of_players_prompt ()))
+
+let rec press_start () =
+  print_string "Press";
+  ANSITerminal.print_string [ ANSITerminal.magenta ] "S";
+  ANSITerminal.print_string [ ANSITerminal.blue ] "T";
+  ANSITerminal.print_string [ ANSITerminal.green ] "A";
+  ANSITerminal.print_string [ ANSITerminal.yellow ] "R";
+  ANSITerminal.print_string [ ANSITerminal.magenta ] "T";
+  try
+    match Command.parse (read_line ()) with
+    | Start -> ()
+    | Quit -> exit 0
+    | Spin ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a spin command, try again.|};
+        press_start ()
+    | Choose i ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a choose command, try again.|};
+        press_start ()
+  with
+  | Empty ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That was an empty command, try again.|};
+      press_start ()
+  | Malformed ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That was a malformed command, try again.|};
+      press_start ()
 
 let main () =
   ANSITerminal.print_string [ ANSITerminal.green ]
@@ -96,19 +186,10 @@ let main () =
   ANSITerminal.print_string [ ANSITerminal.green ] "F";
   ANSITerminal.print_string [ ANSITerminal.yellow ] "E";
   print_endline "! ";
-  print_endline "Player_1's name: ";
-  let player_1 = make_player (read_line ()) None in
-  print_endline "Player_2's name:";
-  let player_2 = make_player (read_line ()) None in
-  print_endline "Player_3's name:";
-  let player_3 = make_player (read_line ()) None in
-  print_endline "Player_4's name:";
-  let player_4 = make_player (read_line ()) None in
-  let player_list = [ player_1; player_2; player_3; player_4 ] in
-  print_endline "Take turns spinning the wheel. The highest spin will go first.";
-  let game = first_turn_spin player_list in
-  let game2 = player_payday game 2000 in
-  let winner = end_game game2 in
+  (* Maybe add instructions on how to play? *)
+  press_start ();
+  let game = first_turn_spin (player_selection ()) in
+  let winner = play game in
   ANSITerminal.print_string [ ANSITerminal.magenta ] "W";
   ANSITerminal.print_string [ ANSITerminal.blue ] "I";
   ANSITerminal.print_string [ ANSITerminal.green ] "N";
@@ -116,19 +197,5 @@ let main () =
   ANSITerminal.print_string [ ANSITerminal.magenta ] "E";
   ANSITerminal.print_string [ ANSITerminal.blue ] "R";
   print_string ("!: " ^ winner ^ " ")
-(* Welcome message
-
-   instructions of what type of commands you can make
-
-   type "start" to start
-
-   prompt for number of players
-
-   prompt each player for that number of players inputted to enter their name
-   and whether they would like to go to college or not
-
-   run first turn spin to determine order
-
-   run play *)
 
 let () = main ()

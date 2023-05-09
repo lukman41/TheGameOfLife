@@ -26,8 +26,9 @@ val end_game : t -> string
 (** [end_game g] is the name of the winner of the game based on their money
     amounts *)
 
-val make_player : string -> career option -> player
-(* [make_player n c] takes in a name and a career and returns a player *)
+val make_player : string -> bool -> player
+(* [make_player n c] takes in a name and a choice of college or not and returns
+   a player *)
 
 val player_name : player -> string
 (* [player_name p ] take in a player and returns the name field of the player *)

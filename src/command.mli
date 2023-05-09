@@ -10,10 +10,13 @@ type object_phrase = string list
 
     - If the player command is ["quit     "], then the object phrase is [Quit].
 
-    - If the player command is ["  spin     "], then the object phrase is [Spin].
-    
-    - If the player command is [" choose    doctor    "], the the object phrase is [Choose \["doctor"\]]
-    *)
+    - If the player command is ["  spin     "], then the object phrase is
+      [Spin].
+
+    -If the player command is ["start " ], then the object phrase is [Start]
+
+    - If the player command is [" choose    doctor    "], the the object phrase
+      is [Choose \["doctor"\]] *)
 
 (** The type [command] represents a player command that is decomposed into a
     verb and possibly an object phrase. *)
@@ -21,6 +24,7 @@ type object_phrase = string list
 type command =
   | Quit
   | Spin
+  | Start
   | Choose of object_phrase
 
 exception Empty
@@ -35,6 +39,7 @@ val parse : string -> command
     the verb. Examples:
 
     - [parse "quit"] is [Quit].
+    - [parse "start"] is [Start].
     - [parse "choose Doctor"] is [Choose \["Doctor"\]]
     - [parse "spin"] is [Spin].
 

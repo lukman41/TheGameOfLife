@@ -150,12 +150,12 @@ let player_selection () =
     (prompt_for_name_and_college [] (number_of_players_prompt ()))
 
 let rec press_start () =
-  print_string "Press";
-  ANSITerminal.print_string [ ANSITerminal.magenta ] "S";
-  ANSITerminal.print_string [ ANSITerminal.blue ] "T";
-  ANSITerminal.print_string [ ANSITerminal.green ] "A";
-  ANSITerminal.print_string [ ANSITerminal.yellow ] "R";
-  ANSITerminal.print_string [ ANSITerminal.magenta ] "T";
+  print_string "Type";
+  ANSITerminal.print_string [ ANSITerminal.magenta ] "s";
+  ANSITerminal.print_string [ ANSITerminal.blue ] "t";
+  ANSITerminal.print_string [ ANSITerminal.green ] "a";
+  ANSITerminal.print_string [ ANSITerminal.yellow ] "r";
+  ANSITerminal.print_string [ ANSITerminal.magenta ] "t";
   try
     match Command.parse (read_line ()) with
     | Start -> ()

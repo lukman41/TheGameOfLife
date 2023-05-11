@@ -1,0 +1,45 @@
+{
+  "action_pay": [
+    {
+      "id": 1,
+      "name": "Don't postpone joy!",
+      "prompt": "It's time to buy that pony you've always wanted. Pay 40k to the bank",
+      "amount": -40000
+    }
+  ],
+  "action_spin": [
+    {
+      "id": 2,
+      "name": "Your poem is a finalist in a national contest!",
+      "prompt": "Type 'spin' to see how you place (If your number is odd, you win first place! If your number is even, you win second place!): ",
+      "even_amount": 10000,
+      "odd_amount": 50000
+    }
+  ],
+  "action_choice": [
+    {
+      "id": 3,
+      "name": "Sell your old car!",
+      "prompt": "Choice A: Trade in at the dealership and collect 50k from the bank. Choice B: Sell at a discount to a freind and collevt 30k from another player. Choose A or B: ",
+      "a_amount": 50000,
+      "b_amount": 30000
+    }
+  ],
+  "house": [
+    {
+      "id": 1,
+      "name": "Beach Hut",
+      "price": -100000,
+      "spin_even": 100000,
+      "spin_odd": 120000
+    }
+  ],
+  "career": [
+    {
+      "id": 1,
+      "name": "Model",
+      "salary": 40000,
+      "bonus_salary": 80000
+    }
+  ]
+}

@@ -2,44 +2,39 @@
 open ANSITerminal
 
 type spot =
-  | StartCollege of { next : spot option }
-  | StartCareer of { next : spot option }
-  | Retire of { next : spot option }
-  | Payday of { next : spot option }
-  | Action of { next : spot option }
+  | Start of { next : spot }
+  | Retire of { next : spot }
+  | Payday of { next : spot }
+  | Action of { next : spot }
   | MarriedStop of {
       prompt : string;
-      next : spot option;
-      paths : spot * spot;
+      next : spot;
           (*two options on which path to take, when a path is chosen, you could
             set players current spot to married_spot with the next being one of
             the choices from the tuple*)
     }
   | FamilyStop of {
       prompt : string;
-      next : spot option;
-      paths : spot * spot;
+      next : spot;
     }
   | CrisisStop of {
       prompt : string;
-      next : spot option;
-      paths : spot * spot;
+      next : spot;
     }
   | RetireEarlyStop of {
       prompt : string;
-      next : spot option;
-      paths : spot * spot;
+      next : spot;
     }
   | GraduationStop of {
       prompt : string;
-      next : spot option;
+      next : spot;
     }
-  | House of { next : spot option }
-  | Friend of { next : spot option }
-  | Pet of { next : spot option }
-  | Baby of { next : spot option }
-  | Twins of { next : spot option }
-  | Career of { next : spot option }
+  | House of { next : spot }
+  | Friend of { next : spot }
+  | Pet of { next : spot }
+  | Baby of { next : spot }
+  | Twins of { next : spot }
+  | Career of { next : spot }
 
 type board = spot list
 
@@ -73,10 +68,6 @@ type t = {
   game_board : board;
 }
 
-let set_player_start = function
-  | true -> StartCollege { next = None }
-  | false -> StartCareer { next = None }
-
 let set_player_career = function
   | true -> None
   | false -> failwith "function to draw career cards"
@@ -86,7 +77,7 @@ let make_player name choice =
     name;
     career = set_player_career choice;
     money = 250000;
-    position = set_player_start choice;
+    position = failwith "todo";
     houses = [];
     pegs = 0;
     has_degree = false;
@@ -123,8 +114,7 @@ let spin =
 
 let get_next_position pos =
   match pos with
-  | StartCollege { next } -> next
-  | StartCareer { next } -> next
+  | Start { next } -> next
   | Retire { next } -> failwith "tried to move from retire spot"
   | Payday { next } -> next
   | Action { next } -> next
@@ -145,7 +135,7 @@ let move_player_spot p =
     name = p.name;
     money = p.money;
     career = p.career;
-    position = Option.get (get_next_position p.position);
+    position = get_next_position p.position;
     houses = p.houses;
     pegs = p.pegs;
     has_degree = p.has_degree;
@@ -154,8 +144,7 @@ let move_player_spot p =
 let landed_spot_operations g =
   (*all functions should return updated game.t*)
   match g.current_player.position with
-  | StartCollege _ -> failwith "unimplemented"
-  | StartCareer _ -> failwith "unimplemented"
+  | Start _ -> failwith "unimplemented"
   | Retire _ ->
       failwith "Undone"
       (*function to take player out of game so they can wait for other players

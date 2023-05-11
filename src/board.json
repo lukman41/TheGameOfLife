@@ -1,0 +1,12 @@
+{
+  "board": [
+    {
+      "type": "StartCollege",
+      "next": "Payday"
+    },
+    {
+      "type": "Payday",
+      "next": "GraduationStop"
+    }
+  ]
+}

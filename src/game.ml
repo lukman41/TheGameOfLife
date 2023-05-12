@@ -287,9 +287,79 @@ let rec prompt_for_spin g =
       print_newline ();
       prompt_for_spin g
 
-let choose_from_three_cards c1 c2 c3 name =
+let rec choose_from_three_cards (c1 : Cards.career_card)
+    (c2 : Cards.career_card) (c3 : Cards.career_card) name =
   print_endline (name ^ "your three choices are: ");
-  failwith "todo"
+  ANSITerminal.print_string [ ANSITerminal.blue ] "OPTION A: ";
+  print_endline c1.name;
+  print_endline ("Salary: " ^ string_of_int c1.salary);
+  print_endline ("Bonus: " ^ string_of_int c1.bonus);
+  ANSITerminal.print_string [ ANSITerminal.blue ] "OPTION B: ";
+  print_endline c2.name;
+  print_endline ("Salary: " ^ string_of_int c2.salary);
+  print_endline ("Bonus: " ^ string_of_int c2.bonus);
+  ANSITerminal.print_string [ ANSITerminal.blue ] "OPTION B: ";
+  print_endline c3.name;
+  print_endline ("Salary: " ^ string_of_int c3.salary);
+  print_endline ("Bonus: " ^ string_of_int c3.bonus);
+  print_endline {| type "choose a", "choose b" or "choose c"|};
+  try
+    match Command.parse (read_line ()) with
+    | Choose w -> (
+        match String.concat " " w with
+        | "a" ->
+            ANSITerminal.print_string [ ANSITerminal.blue ]
+              "Congrats your new career is  ";
+            print_endline c1.name;
+            {
+              name = c1.name;
+              salary = c1.salary;
+              bonus_salary = c1.bonus;
+              requires_degree = c1.requires_degree;
+            }
+        | "b" ->
+            ANSITerminal.print_string [ ANSITerminal.blue ]
+              "Congrats your new career is  ";
+            print_endline c2.name;
+            {
+              name = c2.name;
+              salary = c2.salary;
+              bonus_salary = c2.bonus;
+              requires_degree = c2.requires_degree;
+            }
+        | "c" ->
+            ANSITerminal.print_string [ ANSITerminal.blue ]
+              "Congrats your new career is  ";
+            print_endline c3.name;
+            {
+              name = c3.name;
+              salary = c3.salary;
+              bonus_salary = c3.bonus;
+              requires_degree = c3.requires_degree;
+            }
+        | _ -> raise Malformed)
+    | Start ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a start command, try a choose command |};
+        choose_from_three_cards c1 c2 c3 name
+    | Draw ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a draw command, try a choose command |};
+        choose_from_three_cards c1 c2 c3 name
+    | Quit -> exit 0
+    | Spin ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a spin command, try a choose command |};
+        choose_from_three_cards c1 c2 c3 name
+  with
+  | Empty ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That command was empty, try "choose a" or something like that |};
+      choose_from_three_cards c1 c2 c3 name
+  | Malformed ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That command was malformed, try "choose b" or something like that |};
+      choose_from_three_cards c1 c2 c3 name
 
 let rec draw_career_at_start name =
   print_endline
@@ -298,9 +368,14 @@ let rec draw_career_at_start name =
     );
   match Command.parse (read_line ()) with
   | Draw ->
-      let c1 = Cards.draw_card career_cards in
-      let c2 = Cards.draw_card career_cards in
-      let c3 = Cards.draw_card career_cards in
+      let non_degree_cards =
+        List.filter
+          (fun (cc : Cards.career_card) -> cc.requires_degree = false)
+          career_cards
+      in
+      let c1 = Cards.draw_card non_degree_cards in
+      let c2 = Cards.draw_card non_degree_cards in
+      let c3 = Cards.draw_card non_degree_cards in
       choose_from_three_cards c1 c2 c3 name
   | Spin ->
       print_endline {| that was a spin command, type "draw" |};
@@ -316,7 +391,7 @@ let rec draw_career_at_start name =
 let set_player_career c name =
   match c with
   | true -> None
-  | false -> draw_career_at_start name
+  | false -> Some (draw_career_at_start name)
 
 let set_player_money = function
   | true -> 150000

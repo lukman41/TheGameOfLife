@@ -147,6 +147,7 @@ let rec press_start () =
   ANSITerminal.print_string [ ANSITerminal.yellow ] "r";
   ANSITerminal.print_string [ ANSITerminal.magenta ] "t";
   ANSITerminal.print_string [ ANSITerminal.blue ] " to begin the game: ";
+  print_newline ();
   try
     match Command.parse (read_line ()) with
     | Start -> ()

@@ -541,16 +541,13 @@ and passed_spot_operations g spin_number =
      number. We can use the same retire function whether you land on it or pass
      it. *)
   match g.current_player.position with
-  | Retire _ ->
-      move_player_to_retired g
+  | Retire _ -> move_player_to_retired g
   | Payday _ ->
       let g = pass_a_payday g in
       move_helper g (spin_number - 1)
-  
   | MarriedStop { next } ->
       let g = married_stop_op g in
       move_helper g (spin_number - 1)
-      
   | FamilyStop { next } ->
       let g = family_stop_op g in
       move_helper g (spin_number - 1)
@@ -559,7 +556,6 @@ and passed_spot_operations g spin_number =
   | GraduationStop { next } ->
       let g = graduation_stop_operation g in
       move_helper g (spin_number - 1)
-      
   | _ -> move_helper g (spin_number - 1)
 (*Since you dont do anything when you pass the rest of the spots,only when you
   land on them, we can just call the helper with the player moved one spot over
@@ -583,6 +579,8 @@ let find_max players assoc_lst =
     |> List.map (fun x -> fst x)
   in
   (List.hd players, players)
+
+let rec draw_action_card action_lst g = failwith "Unimplemented draw action"
 
 let first_turn_spin players =
   print_endline "Take turns spinning the wheel. The highest spin will go first.";

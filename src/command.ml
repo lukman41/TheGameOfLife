@@ -5,6 +5,7 @@ type command =
   | Spin
   | Start
   | Choose of object_phrase
+  | Draw
 
 exception Empty
 exception Malformed
@@ -18,6 +19,7 @@ let parse str =
   | [] -> raise Empty
   | h :: t -> (
       match (h, t) with
+      | "draw", [] -> Draw
       | "spin", [] -> Spin
       | "quit", [] -> Quit
       | "start", [] -> Start

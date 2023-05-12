@@ -305,6 +305,10 @@ let rec prompt_for_spin g =
         ANSITerminal.print_string [ ANSITerminal.red ]
           {|That was a draw command, try "spin" or "quit" |};
         prompt_for_spin g
+    | Change _ ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a change command, try "spin" or "quit" |};
+        prompt_for_spin g
   with
   | Empty ->
       ANSITerminal.print_string [ ANSITerminal.red ]
@@ -405,6 +409,10 @@ let rec choose_from_three_cards (c1 : Cards.career_card)
         ANSITerminal.print_string [ ANSITerminal.red ]
           {|That was a spin command, try a choose command |};
         choose_from_three_cards c1 c2 c3 name
+    | Change _ ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a change command, try a choose command |};
+        choose_from_three_cards c1 c2 c3 name
   with
   | Empty ->
       ANSITerminal.print_string [ ANSITerminal.red ]
@@ -436,6 +444,9 @@ let rec draw_multiple_career_cards name card_list =
   | Quit -> exit 0
   | Start ->
       print_endline {| that was a start command, type "draw" |};
+      draw_multiple_career_cards name card_list
+  | Change _ ->
+      print_endline {| that was a change command, type "draw" |};
       draw_multiple_career_cards name card_list
 
 let set_player_career c name =
@@ -674,6 +685,10 @@ let rec family_stop_op game =
         ANSITerminal.print_string [ ANSITerminal.red ]
           {|That was a draw command, to make a choice type "choose" before the choice you want to enter |};
         family_stop_op game
+    | Change _ ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a change command, to make a choice type "choose" before the choice you want to enter |};
+        family_stop_op game
   with
   | Empty ->
       ANSITerminal.print_string [ ANSITerminal.red ]
@@ -701,6 +716,10 @@ let rec spin_action_card () : int =
     | Choose _ ->
         ANSITerminal.print_string [ ANSITerminal.red ]
           {|That was a choose command, to draw an action card type "spin" |};
+        spin_action_card ()
+    | Change _ ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a change command, to draw an action card type "spin" |};
         spin_action_card ()
   with
   | Empty ->
@@ -742,6 +761,10 @@ let rec choice_draw_action_helper (card : Cards.action_cards) =
     | Draw ->
         ANSITerminal.print_string [ ANSITerminal.red ]
           {|That was a draw command, to make a choice type "choose" before the choice you want to enter |};
+        choice_draw_action_helper card
+    | Change _ ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a change command, to make a choice type "choose" before the choice you want to enter |};
         choice_draw_action_helper card
   with
   | Empty ->
@@ -808,6 +831,10 @@ let rec draw_action_card action_lst g =
         ANSITerminal.print_string [ ANSITerminal.red ]
           {|That was a choose command, to draw an action card type "draw" |};
         draw_action_card action_lst g
+    | Change _ ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a change command, to draw an action card type "draw" |};
+        draw_action_card action_lst g
   with
   | Empty ->
       ANSITerminal.print_string [ ANSITerminal.red ]
@@ -818,10 +845,121 @@ let rec draw_action_card action_lst g =
         {|That command was malformed, try "choose no" or something like that |};
       draw_action_card action_lst g
 
+let rec pick_career_card game (card_drawn : Cards.career_card) =
+  print_endline (game.current_player.name ^ ", you drew a " ^ card_drawn.name);
+  print_endline ("Salary: " ^ string_of_int card_drawn.salary);
+  print_endline ("Bonus Salary: " ^ string_of_int card_drawn.bonus);
+  let current_career = Option.get game.current_player.career in
+  print_endline ("Your current career is " ^ current_career.name);
+  print_endline ("Salary: " ^ string_of_int current_career.salary);
+  print_endline ("Bonus Salary: " ^ string_of_int current_career.bonus_salary);
+  print_endline "Do you want to switch careers? choose yes or no.";
+  try
+    match Command.parse (read_line ()) with
+    | Choose c -> (
+        match String.concat " " c with
+        | "yes" ->
+            let new_career =
+              {
+                name = card_drawn.name;
+                salary = card_drawn.salary;
+                bonus_salary = card_drawn.bonus;
+                requires_degree = card_drawn.requires_degree;
+              }
+            in
+            let updated_player =
+              {
+                name = game.current_player.name;
+                money = game.current_player.money;
+                career = Some new_career;
+                position = game.current_player.position;
+                houses = game.current_player.houses;
+                pegs = game.current_player.pegs;
+                has_degree = game.current_player.has_degree;
+              }
+            in
+            {
+              current_player = updated_player;
+              active_players = game.active_players;
+              retired_players = game.retired_players;
+              game_board = game.game_board;
+            }
+        | "no" -> game
+        | _ -> raise Malformed)
+    | Draw ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a draw command, to make a choice, enter "choose yes" or "choose no" |};
+        pick_career_card game card_drawn
+    | Quit -> exit 0
+    | Spin ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a spin command, to make a choice, enter "choose yes" or "choose no" |};
+        pick_career_card game card_drawn
+    | Start ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a spin command, to make a choice, enter "choose yes" or "choose no" |};
+        pick_career_card game card_drawn
+    | Change _ ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a change command, to make a choice, enter "choose yes" or "choose no" |};
+        pick_career_card game card_drawn
+  with
+  | Empty ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That command was empty, try "choose yes" or something like that |};
+      pick_career_card game card_drawn
+  | Malformed ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That command was malformed, try "choose no" or something like that |};
+      pick_career_card game card_drawn
+
+let rec career_stop_op_helper game career_card_list =
+  print_endline {|Type "draw" to draw a career card: |};
+  try
+    match Command.parse (read_line ()) with
+    | Draw ->
+        let card_drawn = Cards.draw_card career_card_list in
+        pick_career_card game card_drawn
+    | Quit -> exit 0
+    | Spin ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a spin command, to draw a career card type "draw" |};
+        career_stop_op_helper game career_card_list
+    | Start ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a start command, to draw a career card type "draw" |};
+        career_stop_op_helper game career_card_list
+    | Choose _ ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a choose command, to draw a career card type "draw" |};
+        career_stop_op_helper game career_card_list
+    | Change _ ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a change command, to draw a career card type "draw" |};
+        career_stop_op_helper game career_card_list
+  with
+  | Empty ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That command was empty, try "choose yes" or something like that |};
+      career_stop_op_helper game career_card_list
+  | Malformed ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That command was malformed, try "choose no" or something like that |};
+      career_stop_op_helper game career_card_list
+
 let career_stop_op game =
-  match game.current_player.has_degree with
-  | true -> failwith "todo"
-  | false -> failwith "todo"
+  match game.current_player.career with
+  | None -> game
+  | Some _ -> (
+      match game.current_player.has_degree with
+      | true -> career_stop_op_helper game career_cards
+      | false ->
+          let non_degree_cards =
+            List.filter
+              (fun (cc : Cards.career_card) -> cc.requires_degree = false)
+              career_cards
+          in
+          career_stop_op_helper game non_degree_cards)
 
 let rec married_stop_op game =
   let player = game.current_player in
@@ -857,6 +995,10 @@ let rec married_stop_op game =
     | Draw ->
         ANSITerminal.print_string [ ANSITerminal.red ]
           {|That was a draw command, to make a choice, type "choose" before the choice you want to enter |};
+        married_stop_op game
+    | Change _ ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a change command, to make a choice, type "choose" before the choice you want to enter |};
         married_stop_op game
   with
   | Empty ->
@@ -940,6 +1082,10 @@ let rec check_all_houses (house_list : house list) game =
               ANSITerminal.print_string [ ANSITerminal.red ]
                 {|That was a draw command, to make a choice, type "choose" before the choice you want to enter |};
               check_all_houses house_list game
+          | Change _ ->
+              ANSITerminal.print_string [ ANSITerminal.red ]
+                {|That was a change command, to make a choice, type "choose" before the choice you want to enter |};
+              check_all_houses house_list game
         with
         | Empty ->
             ANSITerminal.print_string [ ANSITerminal.red ]
@@ -998,6 +1144,10 @@ let rec buy_house_op house game =
         ANSITerminal.print_string [ ANSITerminal.red ]
           {|That was a draw command, to make a choice, type "choose" before the choice you want to enter |};
         buy_house_op house game
+    | Change _ ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a change command, to make a choice, type "choose" before the choice you want to enter |};
+        buy_house_op house game
   with
   | Empty ->
       ANSITerminal.print_string [ ANSITerminal.red ]
@@ -1043,6 +1193,10 @@ let rec landed_house_op game =
         ANSITerminal.print_string [ ANSITerminal.red ]
           {|That was a choose command, to draw a house card, type "draw" |};
         landed_house_op game
+    | Change _ ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a change command, to draw a house card, type "draw" |};
+        landed_house_op game
   with
   | Empty ->
       ANSITerminal.print_string [ ANSITerminal.red ]
@@ -1053,17 +1207,55 @@ let rec landed_house_op game =
         {|That command was malformed, try "draw"  |};
       landed_house_op game
 
-let crisis_stop_op g =
+let rec crisis_stop_op g =
   print_endline
     "You have reached a Crisis Stop! You're currently going through a \n\n\
     \                mid-Life crisis, and you are considering making changes \
      to your life.";
   print_endline
-    "You are able to change your name, sell your house, or change your career";
-  print_endline {|To change your name, type "change name"|};
-  print_endline {|To sell your house, type "change change"|};
+    "You are able to change your sell your house or change your career";
+  print_endline {|To sell your house, type "change house"|};
   print_endline {|To change your career, type "change career"|};
-  g
+  print_endline {|To change nothing, type "change nothing"|};
+  try
+    match Command.parse (read_line ()) with
+    | Change i -> (
+        try
+          match i with
+          | h :: t ->
+              if h = "nothing" && List.length t = 0 then g
+              else if h = "career" && List.length t = 0 then (*career_stop_op*)
+                g
+              else if h = "house" && List.length t = 0 then landed_house_op g
+              else raise Malformed
+          | _ -> raise Malformed
+        with Failure _ -> raise Malformed)
+    | Choose i ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a choose command, to make a choice, type "change" before the choice you want to enter |};
+        crisis_stop_op g
+    | Quit -> exit 0
+    | Spin ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a spin command, to make a choice, type "change" before the choice you want to enter |};
+        crisis_stop_op g
+    | Start ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a start command, to make a choice, type "change" before the choice you want to enter |};
+        crisis_stop_op g
+    | Draw ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a draw command, to make a choice, type "change" before the choice you want to enter |};
+        crisis_stop_op g
+  with
+  | Empty ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That command was empty, try "choose yes" or something like that |};
+      crisis_stop_op g
+  | Malformed ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That command was malformed, try "change nothing" or something like that |};
+      crisis_stop_op g
 
 let landed_spot_operations g =
   (*all functions should return updated game.t*)
@@ -1079,8 +1271,7 @@ let landed_spot_operations g =
   | Action _ -> draw_action_card Cards.action_cards g |> switch_active_player
   | MarriedStop { next } -> married_stop_op g |> switch_active_player
   | FamilyStop { next } -> family_stop_op g |> switch_active_player
-  | CrisisStop { next } ->
-      failwith "unimplemented" (*function to perform stop choice*)
+  | CrisisStop { next } -> crisis_stop_op g |> switch_active_player
   | GraduationStop { next } ->
       graduation_stop_operation g |> switch_active_player
       (* function to perform stop choice and check if you graduated *)
@@ -1124,19 +1315,31 @@ and passed_spot_operations g spin_number =
      number. We can use the same retire function whether you land on it or pass
      it. *)
   match g.current_player.position with
-  | Retire _ -> move_player_to_retired g
+  | Retire _ ->
+      print_endline (g.current_player.name ^ ", you're passing a retire spot!");
+      move_player_to_retired g
   | Payday _ ->
+      print_endline (g.current_player.name ^ ", you're passing a payday spot!");
       let g = pass_a_payday g in
       move_helper g (spin_number - 1)
   | MarriedStop { next } ->
+      print_endline
+        (g.current_player.name ^ ", you're passing a married stop spot!");
       let g = married_stop_op g in
       move_helper g (spin_number - 1)
   | FamilyStop { next } ->
+      print_endline
+        (g.current_player.name ^ ", you're passing a family stop spot!");
       let g = family_stop_op g in
       move_helper g (spin_number - 1)
   | CrisisStop { next } ->
-      failwith "unimplemented" (*function to perform stop choice*)
+      print_endline
+        (g.current_player.name ^ ", you're passing a crisis stop spot!");
+      let g = crisis_stop_op g in
+      move_helper g (spin_number - 1)
   | GraduationStop { next } ->
+      print_endline
+        (g.current_player.name ^ ", you're passing a graduation stop spot!");
       let g = graduation_stop_operation g in
       move_helper g (spin_number - 1)
   | _ -> move_helper g (spin_number - 1)

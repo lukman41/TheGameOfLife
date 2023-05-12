@@ -26,4 +26,6 @@ let parse str =
       | "start", [] -> Start
       | "choose", [] -> raise Empty
       | "choose", _ -> Choose t
+      | "change", [] -> raise Empty
+      | "change", _ -> Change t
       | _, _ -> raise Malformed)

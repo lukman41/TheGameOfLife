@@ -1312,20 +1312,31 @@ and passed_spot_operations g spin_number =
      number. We can use the same retire function whether you land on it or pass
      it. *)
   match g.current_player.position with
-  | Retire _ -> move_player_to_retired g
+  | Retire _ ->
+      print_endline (g.current_player.name ^ ", you're passing a retire spot!");
+      move_player_to_retired g
   | Payday _ ->
+      print_endline (g.current_player.name ^ ", you're passing a payday spot!");
       let g = pass_a_payday g in
       move_helper g (spin_number - 1)
   | MarriedStop { next } ->
+      print_endline
+        (g.current_player.name ^ ", you're passing a married stop spot!");
       let g = married_stop_op g in
       move_helper g (spin_number - 1)
   | FamilyStop { next } ->
+      print_endline
+        (g.current_player.name ^ ", you're passing a family stop spot!");
       let g = family_stop_op g in
       move_helper g (spin_number - 1)
   | CrisisStop { next } ->
+      print_endline
+        (g.current_player.name ^ ", you're passing a crisis stop spot!");
       let g = crisis_stop_op g in
       move_helper g (spin_number - 1)
   | GraduationStop { next } ->
+      print_endline
+        (g.current_player.name ^ ", you're passing a graduation stop spot!");
       let g = graduation_stop_operation g in
       move_helper g (spin_number - 1)
   | _ -> move_helper g (spin_number - 1)

@@ -1212,7 +1212,8 @@ and passed_spot_operations g spin_number =
       let g = family_stop_op g in
       move_helper g (spin_number - 1)
   | CrisisStop { next } ->
-      failwith "unimplemented" (*function to perform stop choice*)
+      let g = crisis_stop_op g in
+      move_helper g (spin_number - 1)
   | GraduationStop { next } ->
       let g = graduation_stop_operation g in
       move_helper g (spin_number - 1)

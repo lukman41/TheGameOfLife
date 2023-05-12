@@ -145,10 +145,8 @@ let rec prompt_for_name_and_college acc i =
         ((name, go_to_college_prompt name) :: acc)
         (i - 1)
 
-(* let player_selection () =
-  List.map
-    (fun (s, b) -> make_player s b)
-    (prompt_for_name_and_college [] (number_of_players_prompt ())) *)
+(* let player_selection () = List.map (fun (s, b) -> make_player s b)
+   (prompt_for_name_and_college [] (number_of_players_prompt ())) *)
 
 let rec press_start () =
   print_string "Type ";
@@ -157,7 +155,7 @@ let rec press_start () =
   ANSITerminal.print_string [ ANSITerminal.green ] "a";
   ANSITerminal.print_string [ ANSITerminal.yellow ] "r";
   ANSITerminal.print_string [ ANSITerminal.magenta ] "t";
-  print_string " to begin the game";
+  print_string " to begin the game: ";
   try
     match Command.parse (read_line ()) with
     | Start -> ()
@@ -180,9 +178,6 @@ let rec press_start () =
         {|That was a malformed command, try again.|};
       press_start ()
 
-let board_json = Yojson.Basic.from_file "board.json"
-let cards_json = Yojson.Basic.from_file "cards.json"
-
 let main () =
   ANSITerminal.print_string [ ANSITerminal.green ]
     " \n\nWelcome to The Game of ";
@@ -193,14 +188,13 @@ let main () =
   print_endline "! ";
   (* Maybe add instructions on how to play? *)
   press_start ()
-  (* let game = first_turn_spin (player_selection ()) in
-  let winner = play game in
-  ANSITerminal.print_string [ ANSITerminal.magenta ] "W";
-  ANSITerminal.print_string [ ANSITerminal.blue ] "I";
-  ANSITerminal.print_string [ ANSITerminal.green ] "N";
-  ANSITerminal.print_string [ ANSITerminal.yellow ] "N";
-  ANSITerminal.print_string [ ANSITerminal.magenta ] "E";
-  ANSITerminal.print_string [ ANSITerminal.blue ] "R";
-  print_string ("!: " ^ winner ^ " ") *)
+(* let game = first_turn_spin (player_selection ()) in let winner = play game in
+   ANSITerminal.print_string [ ANSITerminal.magenta ] "W";
+   ANSITerminal.print_string [ ANSITerminal.blue ] "I";
+   ANSITerminal.print_string [ ANSITerminal.green ] "N";
+   ANSITerminal.print_string [ ANSITerminal.yellow ] "N";
+   ANSITerminal.print_string [ ANSITerminal.magenta ] "E";
+   ANSITerminal.print_string [ ANSITerminal.blue ] "R"; print_string ("!: " ^
+   winner ^ " ") *)
 
 let () = main ()

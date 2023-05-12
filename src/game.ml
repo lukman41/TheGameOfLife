@@ -52,6 +52,181 @@ type t = {
   game_board : board;
 }
 
+module Cards = struct
+  type action_cards =
+    | Pay of {
+        id : int;
+        name : string;
+        prompt : string;
+        amount : int;
+      }
+    | Spin of {
+        id : int;
+        name : string;
+        prompt : string;
+        even_amount : int;
+        odd_amount : int;
+      }
+    | Choice of {
+        id : int;
+        name : string;
+        prompt : string;
+        a_amount : int;
+        b_amount : int;
+      }
+
+  type house_card = {
+    id : int;
+    name : string;
+    price : int;
+    even_amount : int;
+    odd_amount : int;
+  }
+
+  type career_card = {
+    id : int;
+    name : string;
+    salary : int;
+    bonus : int;
+  }
+
+  let action_from_pay_json json : action_cards =
+    Pay
+      {
+        id = json |> member "id" |> to_int;
+        name = json |> member "name" |> to_string;
+        prompt = json |> member "prompt" |> to_string;
+        amount = json |> member "amount" |> to_int;
+      }
+
+  let action_spin_from_json json : action_cards =
+    Spin
+      {
+        id = json |> member "id" |> to_int;
+        name = json |> member "name" |> to_string;
+        prompt = json |> member "prompt" |> to_string;
+        even_amount = json |> member "even_amount" |> to_int;
+        odd_amount = json |> member "odd_amount" |> to_int;
+      }
+
+  let action_choice_from_json json : action_cards =
+    Choice
+      {
+        id = json |> member "id" |> to_int;
+        name = json |> member "name" |> to_string;
+        prompt = json |> member "prompt" |> to_string;
+        a_amount = json |> member "even_amount" |> to_int;
+        b_amount = json |> member "odd_amount" |> to_int;
+      }
+
+  let house_from_json json : house_card =
+    {
+      id = json |> member "id" |> to_int;
+      name = json |> member "name" |> to_string;
+      price = json |> member "price" |> to_int;
+      even_amount = json |> member "even_amount" |> to_int;
+      odd_amount = json |> member "odd_amount" |> to_int;
+    }
+
+  let career_from_json json : career_card =
+    {
+      id = json |> member "id" |> to_int;
+      name = json |> member "name" |> to_string;
+      salary = json |> member "salary" |> to_int;
+      bonus = json |> member "bonus_salary" |> to_int;
+    }
+
+  let action_cards json =
+    let action_pay_list =
+      json |> member "action_pay" |> to_list |> List.map action_from_pay_json
+    in
+    let spin_list =
+      json |> member "action_spin" |> to_list |> List.map action_spin_from_json
+    in
+    let choice_list =
+      json |> member "action_choice" |> to_list
+      |> List.map action_choice_from_json
+    in
+    action_pay_list @ spin_list @ choice_list
+
+  let house_cards json =
+    json |> member "house" |> to_list |> List.map house_from_json
+
+  let career_cards json =
+    json |> member "career" |> to_list |> List.map career_from_json
+
+  let rec draw_card_helper lst index =
+    let h, t =
+      match lst with
+      | [] -> failwith "Invalid action card list for drawing"
+      | h :: t -> (h, t)
+    in
+    match index with
+    | 0 -> h
+    | _ -> draw_card_helper t (index - 1)
+
+  let draw_card l =
+    Random.self_init ();
+    let range = List.length l in
+    let r = Random.int range in
+    draw_card_helper l r
+end
+
+let retire_spot = Retire { next = None }
+
+(** Constructs a Spot object with the spot_type and the next_spot *)
+let make_spot spot_type (next_spot : spot) =
+  match spot_type with
+  | "StartCollege" -> Start { next = Some next_spot }
+  | "Payday" -> Payday { next = Some next_spot }
+  | "GraduationStop" -> GraduationStop { next = Some next_spot }
+  | "Action" -> Action { next = Some next_spot }
+  | "Career" -> Career { next = Some next_spot }
+  | "MarriedStop" -> MarriedStop { next = Some next_spot }
+  | "Pet" -> Pet { next = Some next_spot }
+  | "House" -> House { next = Some next_spot }
+  | "Friend" -> Friend { next = Some next_spot }
+  | "FamilyStop" -> FamilyStop { next = Some next_spot }
+  | "Baby" -> Baby { next = Some next_spot }
+  | "Twins" -> Twins { next = Some next_spot }
+  | "CrisisStop" -> CrisisStop { next = Some next_spot }
+  | "Retire" -> retire_spot
+  | _ -> failwith "unimplemented"
+
+module Board = struct
+  (**Takes in a single spot from the json and returns the type of spot as a
+     string*)
+  let get_spot_type json = json |> member "name" |> to_string
+
+  (** Takes in the board json and outputs it as a list in order with the
+      spot_types as strings*)
+  let board_from_json json =
+    json |> member "board" |> to_list |> List.map get_spot_type
+
+  (**Builds an accumulator for the board as a spot list. Keeps track of the
+     previous spot we just worked with in order to have next when making the
+     current spot*)
+  let rec make_board_helper acc prev string_board =
+    let backward_board = List.rev string_board in
+    match backward_board with
+    | [] -> acc
+    | h1 :: h2 :: t ->
+        if h1 = "Retire" then
+          make_board_helper (retire_spot :: acc) retire_spot (h2 :: t)
+        else
+          let new_spot = make_spot h1 prev in
+          make_board_helper (new_spot :: acc) new_spot (h2 :: t)
+    | h :: t ->
+        let new_spot = make_spot h prev in
+        new_spot :: acc
+
+  (**Makes the board with an empty accumulator *)
+  let make_board board = make_board_helper [] retire_spot board
+
+  (**Returns the start of the board *)
+  let start_spot board = List.hd board
+end
+
 let card_json = Yojson.Basic.from_file "cards.json"
 let board_json = Yojson.Basic.from_file "board.json"
 
@@ -428,65 +603,3 @@ let first_turn_spin players =
 let active_players g = g.active_players
 let current_player g = g.current_player
 let current_player_name p = p.name
-
-let rec prompt_for_spin g =
-  let p = Game.current_player g in
-  Stdlib.print_string (Game.current_player_name p ^ ", type ");
-  ANSITerminal.print_string [ ANSITerminal.magenta ] "'s";
-  ANSITerminal.print_string [ ANSITerminal.blue ] "p";
-  ANSITerminal.print_string [ ANSITerminal.green ] "i";
-  ANSITerminal.print_string [ ANSITerminal.yellow ] "n'";
-  print_endline " to spin.";
-  try
-    match Command.parse (read_line ()) with
-    | Spin ->
-        let player_spin =
-          Random.self_init ();
-          let r = Random.int 12 in
-          if r = 0 || r = 1 then 1 else r - 1
-        in
-        ANSITerminal.print_string [ ANSITerminal.green ]
-          (Game.current_player_name p ^ " spun a " ^ string_of_int player_spin);
-        print_newline ();
-        player_spin
-    | Quit -> exit 0
-    | Choose _ ->
-        ANSITerminal.print_string [ ANSITerminal.red ]
-          {|That Command was a choose, try "spin" or "quit" |};
-        prompt_for_spin g
-    | Start ->
-        ANSITerminal.print_string [ ANSITerminal.red ]
-          {|That was a start command, try "spin" or "quit" |};
-        prompt_for_spin g
-  with
-  | Empty ->
-      ANSITerminal.print_string [ ANSITerminal.red ]
-        {|That Command was empty, try "spin" or "quit" |};
-      print_newline ();
-      prompt_for_spin g
-  | Malformed ->
-      ANSITerminal.print_string [ ANSITerminal.red ]
-        {|That Command was malformed, try try "spin" or "quit" |};
-      print_newline ();
-      prompt_for_spin g
-
-let retire_spot = Retire { next = None }
-
-(** Constructs a Spot object with the spot_type and the next_spot *)
-let make_spot spot_type (next_spot : spot) =
-  match spot_type with
-  | "StartCollege" -> Start { next = Some next_spot }
-  | "Payday" -> Payday { next = Some next_spot }
-  | "GraduationStop" -> GraduationStop { next = Some next_spot }
-  | "Action" -> Action { next = Some next_spot }
-  | "Career" -> Career { next = Some next_spot }
-  | "MarriedStop" -> MarriedStop { next = Some next_spot }
-  | "Pet" -> Pet { next = Some next_spot }
-  | "House" -> House { next = Some next_spot }
-  | "Friend" -> Friend { next = Some next_spot }
-  | "FamilyStop" -> FamilyStop { next = Some next_spot }
-  | "Baby" -> Baby { next = Some next_spot }
-  | "Twins" -> Twins { next = Some next_spot }
-  | "CrisisStop" -> CrisisStop { next = Some next_spot }
-  | "Retire" -> retire_spot
-  | _ -> failwith "unimplemented"

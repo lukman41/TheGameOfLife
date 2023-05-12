@@ -65,7 +65,7 @@ val get_next_position : spot -> spot option
 val move_player_spot : player -> player
 (** [move_player_spot p] moves input players spot up by one*)
 
-val landed_spot_operations : t -> int -> t
+val landed_spot_operations : t -> t
 (**[landed_spot_operations g] preforms the actions needed for the spot that a
    player lands on.*)
 

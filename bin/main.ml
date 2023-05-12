@@ -1,6 +1,7 @@
 open Game_of_life
 open Game
 open Command
+open Board
 
 let rec prompt_for_spin g =
   let p = Game.current_player g in
@@ -144,10 +145,10 @@ let rec prompt_for_name_and_college acc i =
         ((name, go_to_college_prompt name) :: acc)
         (i - 1)
 
-let player_selection () =
+(* let player_selection () =
   List.map
     (fun (s, b) -> make_player s b)
-    (prompt_for_name_and_college [] (number_of_players_prompt ()))
+    (prompt_for_name_and_college [] (number_of_players_prompt ())) *)
 
 let rec press_start () =
   print_string "Type ";
@@ -179,6 +180,9 @@ let rec press_start () =
         {|That was a malformed command, try again.|};
       press_start ()
 
+let board_json = Yojson.Basic.from_file "board.json"
+let cards_json = Yojson.Basic.from_file "cards.json"
+
 let main () =
   ANSITerminal.print_string [ ANSITerminal.green ]
     " \n\nWelcome to The Game of ";
@@ -188,8 +192,8 @@ let main () =
   ANSITerminal.print_string [ ANSITerminal.yellow ] "E";
   print_endline "! ";
   (* Maybe add instructions on how to play? *)
-  press_start ();
-  let game = first_turn_spin (player_selection ()) in
+  press_start ()
+  (* let game = first_turn_spin (player_selection ()) in
   let winner = play game in
   ANSITerminal.print_string [ ANSITerminal.magenta ] "W";
   ANSITerminal.print_string [ ANSITerminal.blue ] "I";
@@ -197,6 +201,6 @@ let main () =
   ANSITerminal.print_string [ ANSITerminal.yellow ] "N";
   ANSITerminal.print_string [ ANSITerminal.magenta ] "E";
   ANSITerminal.print_string [ ANSITerminal.blue ] "R";
-  print_string ("!: " ^ winner ^ " ")
+  print_string ("!: " ^ winner ^ " ") *)
 
 let () = main ()

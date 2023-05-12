@@ -103,7 +103,7 @@ let house_cards json =
 let career_cards json =
   json |> member "career" |> to_list |> List.map career_from_json
 
-let rec draw_card_helper lst index =
+let rec draw_action_card_helper lst index =
   let h, t =
     match lst with
     | [] -> failwith "Invalid action card list for drawing"
@@ -111,10 +111,10 @@ let rec draw_card_helper lst index =
   in
   match index with
   | 0 -> h
-  | _ -> draw_card_helper t (index - 1)
+  | _ -> draw_action_card_helper t (index - 1)
 
-let draw_card l =
+let draw_action_card l =
   Random.self_init ();
   let range = List.length l in
   let r = Random.int range in
-  draw_card_helper l r
+  draw_action_card_helper l r

@@ -150,12 +150,13 @@ let player_selection () =
     (prompt_for_name_and_college [] (number_of_players_prompt ()))
 
 let rec press_start () =
-  print_string "Type";
+  print_string "Type ";
   ANSITerminal.print_string [ ANSITerminal.magenta ] "s";
   ANSITerminal.print_string [ ANSITerminal.blue ] "t";
   ANSITerminal.print_string [ ANSITerminal.green ] "a";
   ANSITerminal.print_string [ ANSITerminal.yellow ] "r";
   ANSITerminal.print_string [ ANSITerminal.magenta ] "t";
+  print_string " to begin the game";
   try
     match Command.parse (read_line ()) with
     | Start -> ()

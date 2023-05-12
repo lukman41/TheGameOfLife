@@ -127,7 +127,15 @@ let move_player_spot p =
     pegs = p.pegs;
     has_degree = p.has_degree;
   }
-
+let retired_list game = let new_list_players = List.filter 
+(fun x -> x <> game.current_player) game.active_players in
+let new_relist_players = [ game.current_player ] in
+{
+  current_player = List.hd new_list_players;
+  active_players = new_list_players;
+  retired_players = game.retired_players @ new_relist_players;
+  game_board = game.game_board;
+}
 let landed_spot_operations g =
   (*all functions should return updated game.t*)
   match g.current_player.position with

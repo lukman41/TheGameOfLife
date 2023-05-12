@@ -21,3 +21,17 @@ open Game
 (* Our types house and career are sort of what I think the card types will be
    like, so it might be smarter to move those inside this module and just access
    them using Card.career or Card.house in the game module *)
+
+type action_cards
+type house_card
+type career_card
+
+val action_from_pay_json : Yojson.Basic.t -> action_cards
+val action_spin_from_json : Yojson.Basic.t -> action_cards
+val action_choice_from_json : Yojson.Basic.t -> action_cards
+val house_from_json : Yojson.Basic.t -> house_card
+val career_from_json : Yojson.Basic.t -> career_card
+val action_cards : Yojson.Basic.t -> action_cards list
+val house_cards : Yojson.Basic.t -> house_card list
+val career_cards : Yojson.Basic.t -> career_card list
+val draw_card : 'a list -> 'a

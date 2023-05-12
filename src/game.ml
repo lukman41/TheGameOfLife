@@ -1,6 +1,7 @@
-(* open Yojson.Basic.Util *)
+open Yojson.Basic.Util
 open ANSITerminal
 open Command
+open Cards
 
 type spot =
   | Start of { next : spot option }
@@ -51,6 +52,9 @@ type t = {
   game_board : board;
 }
 
+let card_json = Yojson.Basic.from_file "cards.json"
+let board_json = Yojson.Basic.from_file "board.json"
+
 let set_player_career = function
   | true -> None
   | false -> failwith "function to draw career cards"
@@ -94,6 +98,10 @@ let spin =
   Random.self_init ();
   let r = Random.int 10 in
   r + 1
+
+let action_card = Cards.action_cards card_json
+let house_cards = Cards.house_cards card_json
+let career_cards = Cards.career_cards card_json
 
 let get_next_position pos =
   match pos with
@@ -304,49 +312,51 @@ and passed_spot_operations g spin_number =
   land on them, we can just call the helper with the player moved one spot over
   and one less spot to go*)
 
-let print_endline_prompt s = print_endline s 
-
-let rec family_stop_op game = 
-  print_endline_prompt "Choose whether or not you want to have/adopt a child with either yes or no.";
-  print_endline {|to make a choice, type "choose" before the choice you want to make|};
+  let print_endline_prompt s = print_endline s
+  let rec family_stop_op game = 
+    print_endline_prompt "Choose whether or not you want to have/adopt a child with either yes or no.";
+    print_endline {|to make a choice, type "choose" before the choice you want to make|};
+    try
+      match Command.parse (read_line ()) with
+      | Choose i -> (
+          try
+            match i with
+            | h :: t -> if h = "yes" && List.length t = 0 then add_pegs game 1 
+              else if h = "no" && List.length t = 0 then game else raise Malformed
+            | _ -> raise Malformed
+          with Failure _ -> raise Malformed)
+      | Quit -> exit 0
+      | Spin ->
+          ANSITerminal.print_string [ ANSITerminal.red ]
+            {|That was a spin command, to make a choice type "choose" before the choice you want to enter |};
+          family_stop_op game
+      | Start ->
+          ANSITerminal.print_string [ ANSITerminal.red ]
+            {|That was a start command, to make a choice type "choose" before the choice you want to enter |};
+          family_stop_op game
+    with
+    | Empty ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That command was empty, try "choose yes" or something like that |};
+        family_stop_op game
+    | Malformed ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That command was malformed, try "choose no" or something like that |};
+        family_stop_op game
+let rec married_stop_op game =
+  print_endline
+    "Choose whether or not you want to get married with either yes or no.";
+  print_endline
+    {|to make a choice, type "choose" before the choice you want to make|};
   try
     match Command.parse (read_line ()) with
     | Choose i -> (
         try
           match i with
-          | h :: t -> if h = "yes" && List.length t = 0 then add_pegs game 1 
-            else if h = "no" && List.length t = 0 then game else raise Malformed
-          | _ -> raise Malformed
-        with Failure _ -> raise Malformed)
-    | Quit -> exit 0
-    | Spin ->
-        ANSITerminal.print_string [ ANSITerminal.red ]
-          {|That was a spin command, to make a choice type "choose" before the choice you want to enter |};
-        family_stop_op game
-    | Start ->
-        ANSITerminal.print_string [ ANSITerminal.red ]
-          {|That was a start command, to make a choice type "choose" before the choice you want to enter |};
-        family_stop_op game
-  with
-  | Empty ->
-      ANSITerminal.print_string [ ANSITerminal.red ]
-        {|That command was empty, try "choose yes" or something like that |};
-      family_stop_op game
-  | Malformed ->
-      ANSITerminal.print_string [ ANSITerminal.red ]
-        {|That command was malformed, try "choose no" or something like that |};
-      family_stop_op game
-
-let rec married_stop_op game = 
-  print_endline_prompt "Choose whether or not you want to get married with either yes or no.";
-  print_endline {|to make a choice, type "choose" before the choice you want to make|};
-  try
-    match Command.parse (read_line ()) with
-    | Choose i -> (
-        try
-          match i with
-          | h :: t -> if h = "yes" && List.length t = 0 then add_pegs game 1 
-            else if h = "no" && List.length t = 0 then game else raise Malformed
+          | h :: t ->
+              if h = "yes" && List.length t = 0 then add_pegs game 1
+              else if h = "no" && List.length t = 0 then game
+              else raise Malformed
           | _ -> raise Malformed
         with Failure _ -> raise Malformed)
     | Quit -> exit 0
@@ -463,20 +473,20 @@ let rec prompt_for_spin g =
 let retire_spot = Retire { next = None }
 
 (** Constructs a Spot object with the spot_type and the next_spot *)
-let make_spot spot_type next_spot =
+let make_spot spot_type (next_spot : spot) =
   match spot_type with
-  | "StartCollege" -> Start { next = next_spot }
-  | "Payday" -> Payday { next = next_spot }
-  | "GraduationStop" -> GraduationStop { next = next_spot }
-  | "Action" -> Action { next = next_spot }
-  | "Career" -> Career { next = next_spot }
-  | "MarriedStop" -> MarriedStop { next = next_spot }
-  | "Pet" -> Pet { next = next_spot }
-  | "House" -> House { next = next_spot }
-  | "Friend" -> Friend { next = next_spot }
-  | "FamilyStop" -> FamilyStop { next = next_spot }
-  | "Baby" -> Baby { next = next_spot }
-  | "Twins" -> Twins { next = next_spot }
-  | "CrisisStop" -> CrisisStop { next = next_spot }
+  | "StartCollege" -> Start { next = Some next_spot }
+  | "Payday" -> Payday { next = Some next_spot }
+  | "GraduationStop" -> GraduationStop { next = Some next_spot }
+  | "Action" -> Action { next = Some next_spot }
+  | "Career" -> Career { next = Some next_spot }
+  | "MarriedStop" -> MarriedStop { next = Some next_spot }
+  | "Pet" -> Pet { next = Some next_spot }
+  | "House" -> House { next = Some next_spot }
+  | "Friend" -> Friend { next = Some next_spot }
+  | "FamilyStop" -> FamilyStop { next = Some next_spot }
+  | "Baby" -> Baby { next = Some next_spot }
+  | "Twins" -> Twins { next = Some next_spot }
+  | "CrisisStop" -> CrisisStop { next = Some next_spot }
   | "Retire" -> retire_spot
   | _ -> failwith "unimplemented"

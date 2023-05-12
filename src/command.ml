@@ -6,6 +6,7 @@ type command =
   | Start
   | Choose of object_phrase
   | Draw
+  | Change of object_phrase
 
 exception Empty
 exception Malformed

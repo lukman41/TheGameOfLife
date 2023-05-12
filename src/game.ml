@@ -994,6 +994,18 @@ let rec landed_house_op game =
         {|That command was malformed, try "draw"  |};
       landed_house_op game
 
+let crisis_stop_op g =
+  print_endline
+    "You have reached a Crisis Stop! You're currently going through a \n\n\
+    \                mid-Life crisis, and you are considering making changes \
+     to your life.";
+  print_endline
+    "You are able to change your name, sell your house, or change your career";
+  print_endline {|To change your name, type "change name"|};
+  print_endline {|To sell your house, type "change change"|};
+  print_endline {|To change your career, type "change career"|};
+  g
+
 let landed_spot_operations g =
   (*all functions should return updated game.t*)
   match g.current_player.position with

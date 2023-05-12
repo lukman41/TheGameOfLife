@@ -90,6 +90,7 @@ module Cards = struct
     name : string;
     salary : int;
     bonus : int;
+    requires_degree : bool;
   }
 
   let action_from_pay_json json : action_cards =
@@ -136,6 +137,7 @@ module Cards = struct
       name = json |> member "name" |> to_string;
       salary = json |> member "salary" |> to_int;
       bonus = json |> member "bonus_salary" |> to_int;
+      requires_degree = json |> member "requires_degree" |> to_bool;
     }
 
   let action_cards json =
@@ -240,15 +242,20 @@ end
 
 let board_spot_list = Board.board_from_json board_json |> Board.make_board
 
+let draw_career_at_start () = failwith "todo"
 let set_player_career = function
   | true -> None
-  | false -> failwith "function to draw career cards"
+  | false -> draw_career_at_start()
+
+let set_player_money = function
+  | true -> 150000
+  | false -> 250000
 
 let make_player name choice =
   {
     name;
     career = set_player_career choice;
-    money = 250000;
+    money = set_player_money choice;
     position = Board.start_spot board_spot_list;
     houses = [];
     pegs = 0;
@@ -405,6 +412,7 @@ let add_pegs g amt =
   updated_game
 
 let graduation_stop_operation g =
+  (* update has_degree field of the player to true *)
   match g.current_player.career with
   | None ->
       print_endline "You Graduated. Now Pick a career!";

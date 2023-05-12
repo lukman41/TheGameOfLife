@@ -106,7 +106,7 @@ let rec go_to_college_prompt name =
      they want to go college or not. *)
   print_endline
     (name
-   ^ {|, do you want to go to college, or start your career? Type "choose yes" or "choose no"|}
+   ^ {|, do you want to go to college, or start your career? If you choose college, you must pay a $100,000 tuition fee, but you will be eligible for jobs that require a degree.  Type "choose yes" or "choose no"|}
     );
   try
     match Command.parse (read_line ()) with

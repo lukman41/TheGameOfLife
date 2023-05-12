@@ -26,6 +26,7 @@ type command =
   | Spin
   | Start
   | Choose of object_phrase
+  | Draw
 
 exception Empty
 (** Raised when an empty command is parsed. *)

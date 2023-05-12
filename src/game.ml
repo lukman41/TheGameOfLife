@@ -1,17 +1,13 @@
 (* open Yojson.Basic.Util *)
 open ANSITerminal
 
+
 type spot =
   | Start of { next : spot option }
   | Retire of { next : spot option }
   | Payday of { next : spot option }
   | Action of { next : spot option }
-  | MarriedStop of {
-      next : spot option;
-          (*two options on which path to take, when a path is chosen, you could
-            set players current spot to married_spot with the next being one of
-            the choices from the tuple*)
-    }
+  | MarriedStop of { next : spot option }
   | FamilyStop of { next : spot option }
   | CrisisStop of { next : spot option }
   | GraduationStop of { next : spot option }
@@ -27,6 +23,7 @@ type board = spot list
 type career = {
   name : string;
   salary : int;
+  bonus_salary : int;
   requires_degree : bool;
 }
 
@@ -126,16 +123,107 @@ let move_player_spot p =
     has_degree = p.has_degree;
   }
 
+let move_player_to_retired game =
+  let new_list_players =
+    List.filter (fun x -> x <> game.current_player) game.active_players
+  in
+  let new_relist_players = [ game.current_player ] in
+  {
+    current_player = List.hd new_list_players;
+    active_players = new_list_players;
+    retired_players = game.retired_players @ new_relist_players;
+    game_board = game.game_board;
+  }
+
+let switch_active_player g =
+  match g.active_players with
+  | [] -> g
+  | old_current_player :: rest_of_players -> (
+      match rest_of_players with
+      | [] -> g
+      | next_player_up :: remaining_players ->
+          {
+            current_player = next_player_up;
+            active_players = remaining_players @ [ old_current_player ];
+            retired_players = g.retired_players;
+            game_board = g.game_board;
+          })
+
+let pay_current_player g amt =
+  let updated_player =
+    {
+      name = g.current_player.name;
+      money = g.current_player.money + amt;
+      career = g.current_player.career;
+      position = g.current_player.position;
+      houses = g.current_player.houses;
+      pegs = g.current_player.pegs;
+      has_degree = g.current_player.has_degree;
+    }
+  in
+  {
+    current_player = updated_player;
+    active_players = updated_player :: List.tl g.active_players;
+    retired_players = g.retired_players;
+    game_board = g.game_board;
+  }
+
+let land_on_payday g =
+  match g.current_player.career with
+  | None ->
+      print_endline
+        (g.current_player.name
+       ^ " landed on a payday, but they don't have a job.");
+      switch_active_player g
+  | Some career ->
+      print_endline
+        (g.current_player.name ^ " landed on a payday, their bonus salary is: "
+        ^ string_of_int career.bonus_salary);
+      pay_current_player g career.bonus_salary |> switch_active_player
+
+let pass_a_payday g =
+  match g.current_player.career with
+  | None ->
+      print_endline
+        (g.current_player.name ^ " passed a payday, but they don't have a job.");
+      switch_active_player g
+  | Some career ->
+      print_endline
+        (g.current_player.name ^ " passed a paydat, their salary is: "
+        ^ string_of_int career.salary);
+      pay_current_player g career.salary
+
+let add_pegs g amt =
+  let updated_player =
+    {
+      name = g.current_player.name;
+      money = g.current_player.money;
+      career = g.current_player.career;
+      position = g.current_player.position;
+      houses = g.current_player.houses;
+      pegs = g.current_player.pegs + amt;
+      has_degree = g.current_player.has_degree;
+    }
+  in
+  let updated_game =
+    {
+      current_player = updated_player;
+      active_players = updated_player :: List.tl g.active_players;
+      retired_players = g.retired_players;
+      game_board = g.game_board;
+    }
+  in
+  updated_game
+
 let landed_spot_operations g =
   (*all functions should return updated game.t*)
   match g.current_player.position with
   | Start _ -> failwith "unimplemented"
   | Retire _ ->
-      failwith "Undone"
+      move_player_to_retired g
       (*function to take player out of game so they can wait for other players
         to finish*)
-  | Payday _ ->
-      failwith "unimplemented" (*funtion to pay players their bonus salary*)
+  | Payday _ -> land_on_payday g (*funtion to pay players their bonus salary*)
   | Action _ -> failwith "unimplemented" (*function to draw action card*)
   | MarriedStop { next } ->
       failwith "unimplemented" (*function to perform stop choice*)
@@ -149,10 +237,18 @@ let landed_spot_operations g =
   | House _ ->
       failwith "unimplemented"
       (*function to draw a house card ask if player wants to buy, and *)
-  | Friend _ -> failwith "unimplemented" (*function to perform add peg choice*)
-  | Pet _ -> failwith "unimplemented" (*function to perform add peg choice*)
-  | Baby _ -> failwith "unimplemented" (*function to perform add peg choice*)
-  | Twins _ -> failwith "unimplemented" (*function to perform add peg choice*)
+  | Friend _ ->
+      add_pegs g 1
+      |> switch_active_player (*function to perform add peg choice*)
+  | Pet _ ->
+      add_pegs g 1
+      |> switch_active_player (*function to perform add peg choice*)
+  | Baby _ ->
+      add_pegs g 1
+      |> switch_active_player (*function to perform add peg choice*)
+  | Twins _ ->
+      add_pegs g 2
+      |> switch_active_player (*function to perform add peg choice*)
   | Career _ -> failwith "unimplemented" (*function to draw career card*)
 
 let rec move_helper g spin_number =
@@ -179,15 +275,17 @@ and passed_spot_operations g spin_number =
      it. *)
   match g.current_player.position with
   | Retire _ ->
-      failwith "Undone"
+      move_player_to_retired g
       (*function to take player out of game so they can wait for other players
         to finish*)
   | Payday _ ->
-      failwith "unimplemented" (*function to pay players their bonus salary*)
+      let g = pass_a_payday g in
+      move_helper g (spin_number - 1)
+      (*function to pay players their bonus salary*)
   | MarriedStop { next } ->
       failwith "unimplemented" (*function to perform stop choice*)
   | FamilyStop { next } ->
-      failwith "unimplemente" (*function to perform stop choice*)
+      failwith "unimplemented" (*function to perform stop choice*)
   | CrisisStop { next } ->
       failwith "unimplemented" (*function to perform stop choice*)
   | GraduationStop { next } ->

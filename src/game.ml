@@ -271,12 +271,15 @@ let board_spot_list = Board.board_from_json board_json |> Board.make_board
 
 let rec prompt_for_spin g =
   let p = g.current_player in
-  Stdlib.print_string (g.current_player.name ^ ", type ");
+  ANSITerminal.print_string [ ANSITerminal.blue ]
+    (g.current_player.name ^ ", type ");
   ANSITerminal.print_string [ ANSITerminal.magenta ] "'s";
   ANSITerminal.print_string [ ANSITerminal.blue ] "p";
   ANSITerminal.print_string [ ANSITerminal.green ] "i";
   ANSITerminal.print_string [ ANSITerminal.yellow ] "n'";
-  print_endline " to spin.";
+  ANSITerminal.print_string [ ANSITerminal.blue ] " to spin.";
+  print_newline ();
+
   try
     match Command.parse (read_line ()) with
     | Spin ->
@@ -771,8 +774,9 @@ let rec draw_action_card action_lst g =
       draw_action_card action_lst g
 
 let rec married_stop_op game =
+  let player = game.current_player in
   ANSITerminal.print_string [ ANSITerminal.blue ]
-    {|Do you want to get married?|};
+    (player.name ^ ", Do you want to get married?");
   print_newline ();
   ANSITerminal.print_string [ ANSITerminal.yellow ]
     {|To make a choice, type "choose" before the choice you want to make- yes or no.|};
@@ -1079,6 +1083,12 @@ let find_max players assoc_lst =
   in
   (List.hd players, players)
 
+let rec string_player_order acc num = function
+  | [] -> ANSITerminal.print_string [ ANSITerminal.green ] (acc ^ ".")
+  | h :: t ->
+      if num = 0 then string_player_order (acc ^ h.name) 1 t
+      else string_player_order (acc ^ "-> " ^ h.name) (num + 1) t
+
 let first_turn_spin players =
   ANSITerminal.print_string [ ANSITerminal.yellow ]
     "Take turns spinning the wheel. The highest spin will go first.";
@@ -1115,7 +1125,7 @@ let first_turn_spin players =
   let current_player, active_players = prompt_players players [] in
   ANSITerminal.print_string [ ANSITerminal.green ]
     (current_player.name ^ " is going first! ");
-  (* string_player_order "The order is " 0 active_players; *)
+  string_player_order "The order is " 0 active_players;
   print_newline ();
   {
     current_player;

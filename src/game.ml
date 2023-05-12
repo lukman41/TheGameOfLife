@@ -33,8 +33,8 @@ type career = {
 type house = {
   name : string;
   purchase_price : int;
-  sell_red : int;
-  sell_black : int;
+  sell_even : int;
+  sell_odd : int;
 }
 
 type player = {
@@ -241,11 +241,82 @@ module Board = struct
 end
 
 let board_spot_list = Board.board_from_json board_json |> Board.make_board
-let draw_career_at_start () = failwith "todo"
 
-let set_player_career = function
+let rec prompt_for_spin g =
+  let p = g.current_player in
+  Stdlib.print_string (g.current_player.name ^ ", type ");
+  ANSITerminal.print_string [ ANSITerminal.magenta ] "'s";
+  ANSITerminal.print_string [ ANSITerminal.blue ] "p";
+  ANSITerminal.print_string [ ANSITerminal.green ] "i";
+  ANSITerminal.print_string [ ANSITerminal.yellow ] "n'";
+  print_endline " to spin.";
+  try
+    match Command.parse (read_line ()) with
+    | Spin ->
+        let player_spin =
+          Random.self_init ();
+          let r = Random.int 12 in
+          if r = 0 || r = 1 then 1 else r - 1
+        in
+        ANSITerminal.print_string [ ANSITerminal.green ]
+          (p.name ^ " spun a " ^ string_of_int player_spin);
+        print_newline ();
+        player_spin
+    | Quit -> exit 0
+    | Choose _ ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That Command was a choose, try "spin" or "quit" |};
+        prompt_for_spin g
+    | Start ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a start command, try "spin" or "quit" |};
+        prompt_for_spin g
+    | Draw ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a draw command, try "spin" or "quit" |};
+        prompt_for_spin g
+  with
+  | Empty ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That Command was empty, try "spin" or "quit" |};
+      print_newline ();
+      prompt_for_spin g
+  | Malformed ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That Command was malformed, try try "spin" or "quit" |};
+      print_newline ();
+      prompt_for_spin g
+
+let choose_from_three_cards c1 c2 c3 name =
+  print_endline (name ^ "your three choices are: ");
+  failwith "todo"
+
+let rec draw_career_at_start name =
+  print_endline
+    (name
+   ^ {|, you need to draw three career cards to choose from. type "draw" to draw: |}
+    );
+  match Command.parse (read_line ()) with
+  | Draw ->
+      let c1 = Cards.draw_card career_cards in
+      let c2 = Cards.draw_card career_cards in
+      let c3 = Cards.draw_card career_cards in
+      choose_from_three_cards c1 c2 c3 name
+  | Spin ->
+      print_endline {| that was a spin command, type "draw" |};
+      draw_career_at_start name
+  | Choose a ->
+      print_endline {| that was a choose command, type "draw" |};
+      draw_career_at_start name
+  | Quit -> exit 0
+  | Start ->
+      print_endline {| that was a start command, type "draw" |};
+      draw_career_at_start name
+
+let set_player_career c name =
+  match c with
   | true -> None
-  | false -> draw_career_at_start ()
+  | false -> draw_career_at_start name
 
 let set_player_money = function
   | true -> 150000
@@ -254,7 +325,7 @@ let set_player_money = function
 let make_player name choice =
   {
     name;
-    career = set_player_career choice;
+    career = set_player_career choice name;
     money = set_player_money choice;
     position = Board.start_spot board_spot_list;
     houses = [];
@@ -449,6 +520,10 @@ let rec family_stop_op game =
         ANSITerminal.print_string [ ANSITerminal.red ]
           {|That was a start command, to make a choice type "choose" before the choice you want to enter |};
         family_stop_op game
+    | Draw ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a draw command, to make a choice, type "choose" before the choice you want to enter |};
+        family_stop_op game
   with
   | Empty ->
       ANSITerminal.print_string [ ANSITerminal.red ]
@@ -483,11 +558,15 @@ let rec married_stop_op game =
     | Quit -> exit 0
     | Spin ->
         ANSITerminal.print_string [ ANSITerminal.red ]
-          {|That was a spin command, to make a choice type "choose" before the choice you want to enter |};
+          {|That was a spin command, to make a choice, type "choose" before the choice you want to enter |};
         married_stop_op game
     | Start ->
         ANSITerminal.print_string [ ANSITerminal.red ]
-          {|That was a start command, to make a choice type "choose" before the choice you want to enter |};
+          {|That was a start command, to make a choice, type "choose" before the choice you want to enter |};
+        married_stop_op game
+    | Draw ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a draw command, to make a choice, type "choose" before the choice you want to enter |};
         married_stop_op game
   with
   | Empty ->
@@ -498,6 +577,22 @@ let rec married_stop_op game =
       ANSITerminal.print_string [ ANSITerminal.red ]
         {|That command was malformed, try "choose no" or something like that |};
       married_stop_op game
+
+(* let rec landed_house_op game = print_endline "You have landed on a house
+   spot! Type in 'draw' to draw a house card."; try match Command.parse
+   (read_line ()) with | Draw -> function | h :: t -> if h = "draw" &&
+   List.length t = 0 then Cards.draw_card house_cards else raise Malformed | _
+   -> raise Malformed failwith "todo" | Quit -> exit 0 | Spin ->
+   ANSITerminal.print_string [ ANSITerminal.red ] {|That was a spin command, to
+   draw a house card, type "draw" |}; landed_house_op game | Start ->
+   ANSITerminal.print_string [ ANSITerminal.red ] {|That was a start command, to
+   draw a house card, type "draw" |}; landed_house_op game | Choose _ ->
+   ANSITerminal.print_string [ ANSITerminal.red ] {|That was a choose command,
+   to draw a house card, type "draw" |}; with | Empty ->
+   ANSITerminal.print_string [ ANSITerminal.red ] {|That command was empty, try
+   "draw" |}; landed_house_op game | Malformed -> ANSITerminal.print_string [
+   ANSITerminal.red ] {|That command was malformed, try "draw" |};
+   landed_house_op game *)
 
 let landed_spot_operations g =
   (*all functions should return updated game.t*)

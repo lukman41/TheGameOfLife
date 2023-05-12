@@ -3,49 +3,6 @@ open Game
 open Command
 open Board
 
-let rec prompt_for_spin g =
-  let p = Game.current_player g in
-  ANSITerminal.print_string [ ANSITerminal.blue ]
-    (Game.current_player_name p ^ ", type ");
-  ANSITerminal.print_string [ ANSITerminal.magenta ] "'s";
-  ANSITerminal.print_string [ ANSITerminal.blue ] "p";
-  ANSITerminal.print_string [ ANSITerminal.green ] "i";
-  ANSITerminal.print_string [ ANSITerminal.yellow ] "n'";
-  ANSITerminal.print_string [ ANSITerminal.blue ] " to spin.";
-  print_newline ();
-  try
-    match Command.parse (read_line ()) with
-    | Spin ->
-        let player_spin =
-          Random.self_init ();
-          let r = Random.int 12 in
-          if r = 0 || r = 1 then 1 else r - 1
-        in
-        ANSITerminal.print_string [ ANSITerminal.green ]
-          (Game.current_player_name p ^ " spun a " ^ string_of_int player_spin);
-        print_newline ();
-        player_spin
-    | Quit -> exit 0
-    | Choose _ ->
-        ANSITerminal.print_string [ ANSITerminal.red ]
-          {|That Command was a choose, try "spin" or "quit" |};
-        prompt_for_spin g
-    | Start ->
-        ANSITerminal.print_string [ ANSITerminal.red ]
-          {|That was a start command, try "spin" or "quit" |};
-        prompt_for_spin g
-  with
-  | Empty ->
-      ANSITerminal.print_string [ ANSITerminal.red ]
-        {|That Command was empty, try "spin" or "quit" |};
-      print_newline ();
-      prompt_for_spin g
-  | Malformed ->
-      ANSITerminal.print_string [ ANSITerminal.red ]
-        {|That Command was malformed, try try "spin" or "quit" |};
-      print_newline ();
-      prompt_for_spin g
-
 let rec play g =
   (*this function should take in a game state
 
@@ -53,7 +10,7 @@ let rec play g =
     player list is empty, at that point, this can call end game*)
   match Game.active_players g with
   | [] -> end_game g
-  | _ -> play (move_current_player g (prompt_for_spin g))
+  | _ -> play (move_current_player g (Game.prompt_for_spin g))
 
 (*the recursive case is a call to move_current_player with the game state, after
   that call, change the current player to the next player in line and call play
@@ -92,6 +49,10 @@ let rec number_of_players_prompt () =
         ANSITerminal.print_string [ ANSITerminal.red ]
           {|That was a start command, to make a choice type "choose" before the number you want to enter |};
         print_newline ();
+        number_of_players_prompt ()
+    | Draw ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a draw command, to make a choice type "choose" before the number you want to enter |};
         number_of_players_prompt ()
   with
   | Empty ->
@@ -146,6 +107,10 @@ let rec go_to_college_prompt name =
           {|That was a start command, to make a choice type "choose" before the choice you want to make |};
         print_newline ();
         go_to_college_prompt name
+    | Draw ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a draw command, to make a choice type "choose" before the choice you want to make |};
+        go_to_college_prompt name
   with
   | Empty ->
       ANSITerminal.print_string [ ANSITerminal.red ]
@@ -195,6 +160,10 @@ let rec press_start () =
         ANSITerminal.print_string [ ANSITerminal.red ]
           {|That was a choose command, try again.|};
         print_newline ();
+        press_start ()
+    | Draw ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a draw command, try again.|};
         press_start ()
   with
   | Empty ->

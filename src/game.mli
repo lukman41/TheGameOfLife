@@ -84,3 +84,5 @@ val retire_spot : spot
 
 val make_spot : string -> spot -> spot
 (** [make_spot s n] is the Spot object with type option s and next spot n *)
+
+val prompt_for_spin : t -> int

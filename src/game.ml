@@ -388,37 +388,38 @@ let rec choose_from_three_cards (c1 : Cards.career_card)
         {|That command was malformed, try "choose b" or something like that |};
       choose_from_three_cards c1 c2 c3 name
 
-let rec draw_career_at_start name =
+let rec draw_multiple_career_cards name card_list =
   print_endline
     (name
    ^ {|, you need to draw three career cards to choose from. type "draw" to draw: |}
     );
   match Command.parse (read_line ()) with
   | Draw ->
+      let c1 = Cards.draw_card card_list in
+      let c2 = Cards.draw_card card_list in
+      let c3 = Cards.draw_card card_list in
+      choose_from_three_cards c1 c2 c3 name
+  | Spin ->
+      print_endline {| that was a spin command, type "draw" |};
+      draw_multiple_career_cards name card_list
+  | Choose a ->
+      print_endline {| that was a choose command, type "draw" |};
+      draw_multiple_career_cards name card_list
+  | Quit -> exit 0
+  | Start ->
+      print_endline {| that was a start command, type "draw" |};
+      draw_multiple_career_cards name card_list
+
+let set_player_career c name =
+  match c with
+  | true -> None
+  | false ->
       let non_degree_cards =
         List.filter
           (fun (cc : Cards.career_card) -> cc.requires_degree = false)
           career_cards
       in
-      let c1 = Cards.draw_card non_degree_cards in
-      let c2 = Cards.draw_card non_degree_cards in
-      let c3 = Cards.draw_card non_degree_cards in
-      choose_from_three_cards c1 c2 c3 name
-  | Spin ->
-      print_endline {| that was a spin command, type "draw" |};
-      draw_career_at_start name
-  | Choose a ->
-      print_endline {| that was a choose command, type "draw" |};
-      draw_career_at_start name
-  | Quit -> exit 0
-  | Start ->
-      print_endline {| that was a start command, type "draw" |};
-      draw_career_at_start name
-
-let set_player_career c name =
-  match c with
-  | true -> None
-  | false -> Some (draw_career_at_start name)
+      Some (draw_multiple_career_cards name non_degree_cards)
 
 let set_player_money = function
   | true -> 150000
@@ -585,11 +586,30 @@ let add_pegs g amt =
   updated_game
 
 let graduation_stop_operation g =
-  (* update has_degree field of the player to true *)
   match g.current_player.career with
   | None ->
       print_endline "You Graduated. Now Pick a career!";
-      failwith "todo function to draw career cards"
+      let updated_player =
+        {
+          name = g.current_player.name;
+          money = g.current_player.money;
+          career =
+            Some (draw_multiple_career_cards g.current_player.name career_cards);
+          position = g.current_player.position;
+          houses = g.current_player.houses;
+          pegs = g.current_player.pegs;
+          has_degree = g.current_player.has_degree;
+        }
+      in
+      let updated_game =
+        {
+          current_player = updated_player;
+          active_players = updated_player :: List.tl g.active_players;
+          retired_players = g.retired_players;
+          game_board = g.game_board;
+        }
+      in
+      updated_game
   | Some career -> g
 
 let rec family_stop_op game =
@@ -769,6 +789,11 @@ let rec draw_action_card action_lst g =
       ANSITerminal.print_string [ ANSITerminal.red ]
         {|That command was malformed, try "choose no" or something like that |};
       draw_action_card action_lst g
+
+let career_stop_op game =
+  match game.current_player.has_degree with
+  | true -> failwith "todo"
+  | false -> failwith "todo"
 
 let rec married_stop_op game =
   ANSITerminal.print_string [ ANSITerminal.blue ]
@@ -1010,7 +1035,9 @@ let landed_spot_operations g =
       move_player_to_retired g
       (*function to take player out of game so they can wait for other players
         to finish*)
-  | Payday _ -> land_on_payday g (*funtion to pay players their bonus salary*)
+  | Payday _ ->
+      land_on_payday g
+      |> switch_active_player (*funtion to pay players their bonus salary*)
   | Action _ -> draw_action_card Cards.action_cards g |> switch_active_player
   | MarriedStop { next } -> married_stop_op g |> switch_active_player
   | FamilyStop { next } -> family_stop_op g |> switch_active_player
@@ -1082,7 +1109,7 @@ and passed_spot_operations g spin_number =
 let move_current_player g i = move_helper g i
 
 let end_game g =
-  let lst_players = g.active_players in
+  let lst_players = g.retired_players in
   let rec check_max lst max player =
     match lst with
     | [] -> player.name

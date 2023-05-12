@@ -304,6 +304,37 @@ and passed_spot_operations g spin_number =
   land on them, we can just call the helper with the player moved one spot over
   and one less spot to go*)
 
+let rec married_stop_op game = 
+  print_endline "Choose whether or not you want to get married with either yes or no.";
+  print_endline {|to make a choice, type "choose" before the choice you want to make|};
+  try
+    match Command.parse (read_line ()) with
+    | Choose i -> (
+        try
+          match i with
+          | h :: t -> if h = "yes" && List.length t = 0 then add_pegs game 1 
+            else if h = "no" && List.length t = 0 then game else raise Malformed
+          | _ -> raise Malformed
+        with Failure _ -> raise Malformed)
+    | Quit -> exit 0
+    | Spin ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a spin command, to make a choice type "choose" before the choice you want to enter |};
+        married_stop_op game
+    | Start ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a start command, to make a choice type "choose" before the choice you want to enter |};
+        married_stop_op game
+  with
+  | Empty ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That command was empty, try "choose yes" or something like that |};
+      married_stop_op game
+  | Malformed ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That command was malformed, try "choose no" or something like that |};
+      married_stop_op game
+
 let move_current_player g i = move_helper g i
 
 let end_game g =

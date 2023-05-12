@@ -14,7 +14,6 @@ type spot =
     }
   | FamilyStop of { next : spot option }
   | CrisisStop of { next : spot option }
-  | RetireEarlyStop of { next : spot option }
   | GraduationStop of { next : spot option }
   | House of { next : spot option }
   | Friend of { next : spot option }
@@ -108,7 +107,6 @@ let get_next_position pos =
   | MarriedStop { next } -> next
   | FamilyStop { next } -> next
   | CrisisStop { next } -> next
-  | RetireEarlyStop { next } -> next
   | GraduationStop { next } -> next
   | House { next } -> next
   | Friend { next } -> next
@@ -144,8 +142,6 @@ let landed_spot_operations g =
   | FamilyStop { next } ->
       failwith "unimplemented" (*function to perform stop choice*)
   | CrisisStop { next } ->
-      failwith "unimplemented" (*function to perform stop choice*)
-  | RetireEarlyStop { next } ->
       failwith "unimplemented" (*function to perform stop choice*)
   | GraduationStop { next } ->
       failwith "unimplemented"
@@ -193,8 +189,6 @@ and passed_spot_operations g spin_number =
   | FamilyStop { next } ->
       failwith "unimplemente" (*function to perform stop choice*)
   | CrisisStop { next } ->
-      failwith "unimplemented" (*function to perform stop choice*)
-  | RetireEarlyStop { next } ->
       failwith "unimplemented" (*function to perform stop choice*)
   | GraduationStop { next } ->
       failwith "unimplemented"

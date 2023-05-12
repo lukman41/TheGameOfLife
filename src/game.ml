@@ -1,6 +1,7 @@
 (* open Yojson.Basic.Util *)
 open ANSITerminal
 
+
 type spot =
   | Start of { next : spot option }
   | Retire of { next : spot option }
@@ -212,7 +213,7 @@ let add_pegs g amt =
       game_board = g.game_board;
     }
   in
-  updated_game |> switch_active_player
+  updated_game
 
 let landed_spot_operations g =
   (*all functions should return updated game.t*)
@@ -236,10 +237,18 @@ let landed_spot_operations g =
   | House _ ->
       failwith "unimplemented"
       (*function to draw a house card ask if player wants to buy, and *)
-  | Friend _ -> add_pegs g 1 (*function to perform add peg choice*)
-  | Pet _ -> add_pegs g 1 (*function to perform add peg choice*)
-  | Baby _ -> add_pegs g 1 (*function to perform add peg choice*)
-  | Twins _ -> add_pegs g 2 (*function to perform add peg choice*)
+  | Friend _ ->
+      add_pegs g 1
+      |> switch_active_player (*function to perform add peg choice*)
+  | Pet _ ->
+      add_pegs g 1
+      |> switch_active_player (*function to perform add peg choice*)
+  | Baby _ ->
+      add_pegs g 1
+      |> switch_active_player (*function to perform add peg choice*)
+  | Twins _ ->
+      add_pegs g 2
+      |> switch_active_player (*function to perform add peg choice*)
   | Career _ -> failwith "unimplemented" (*function to draw career card*)
 
 let rec move_helper g spin_number =
@@ -269,11 +278,14 @@ and passed_spot_operations g spin_number =
       move_player_to_retired g
       (*function to take player out of game so they can wait for other players
         to finish*)
-  | Payday _ -> pass_a_payday g (*function to pay players their bonus salary*)
+  | Payday _ ->
+      let g = pass_a_payday g in
+      move_helper g (spin_number - 1)
+      (*function to pay players their bonus salary*)
   | MarriedStop { next } ->
       failwith "unimplemented" (*function to perform stop choice*)
   | FamilyStop { next } ->
-      failwith "unimplemente" (*function to perform stop choice*)
+      failwith "unimplemented" (*function to perform stop choice*)
   | CrisisStop { next } ->
       failwith "unimplemented" (*function to perform stop choice*)
   | GraduationStop { next } ->

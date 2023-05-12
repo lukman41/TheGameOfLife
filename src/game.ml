@@ -1229,20 +1229,20 @@ let rec crisis_stop_op g =
         with Failure _ -> raise Malformed)
     | Choose i ->
         ANSITerminal.print_string [ ANSITerminal.red ]
-          {|That was a choose command, to make a choice, type "choose" before the choice you want to enter |};
+          {|That was a choose command, to make a choice, type "change" before the choice you want to enter |};
         crisis_stop_op g
     | Quit -> exit 0
     | Spin ->
         ANSITerminal.print_string [ ANSITerminal.red ]
-          {|That was a spin command, to make a choice, type "choose" before the choice you want to enter |};
+          {|That was a spin command, to make a choice, type "change" before the choice you want to enter |};
         crisis_stop_op g
     | Start ->
         ANSITerminal.print_string [ ANSITerminal.red ]
-          {|That was a start command, to make a choice, type "choose" before the choice you want to enter |};
+          {|That was a start command, to make a choice, type "change" before the choice you want to enter |};
         crisis_stop_op g
     | Draw ->
         ANSITerminal.print_string [ ANSITerminal.red ]
-          {|That was a draw command, to make a choice, type "choose" before the choice you want to enter |};
+          {|That was a draw command, to make a choice, type "change" before the choice you want to enter |};
         crisis_stop_op g
   with
   | Empty ->
@@ -1251,7 +1251,7 @@ let rec crisis_stop_op g =
       crisis_stop_op g
   | Malformed ->
       ANSITerminal.print_string [ ANSITerminal.red ]
-        {|That command was malformed, try "choose no" or something like that |};
+        {|That command was malformed, try "change nothing" or something like that |};
       crisis_stop_op g
 
 let landed_spot_operations g =

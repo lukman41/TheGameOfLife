@@ -6,12 +6,7 @@ type spot =
   | Retire of { next : spot option }
   | Payday of { next : spot option }
   | Action of { next : spot option }
-  | MarriedStop of {
-      next : spot option;
-          (*two options on which path to take, when a path is chosen, you could
-            set players current spot to married_spot with the next being one of
-            the choices from the tuple*)
-    }
+  | MarriedStop of { next : spot option }
   | FamilyStop of { next : spot option }
   | CrisisStop of { next : spot option }
   | GraduationStop of { next : spot option }
@@ -27,6 +22,7 @@ type board = spot list
 type career = {
   name : string;
   salary : int;
+  bonus_salary : int;
   requires_degree : bool;
 }
 
@@ -125,15 +121,65 @@ let move_player_spot p =
     pegs = p.pegs;
     has_degree = p.has_degree;
   }
-let retired_list game = let new_list_players = List.filter 
-(fun x -> x <> game.current_player) game.active_players in
-let new_relist_players = [ game.current_player ] in
-{
-  current_player = List.hd new_list_players;
-  active_players = new_list_players;
-  retired_players = game.retired_players @ new_relist_players;
-  game_board = game.game_board;
-}
+
+let move_player_to_retired game =
+  let new_list_players =
+    List.filter (fun x -> x <> game.current_player) game.active_players
+  in
+  let new_relist_players = [ game.current_player ] in
+  {
+    current_player = List.hd new_list_players;
+    active_players = new_list_players;
+    retired_players = game.retired_players @ new_relist_players;
+    game_board = game.game_board;
+  }
+
+let switch_active_player g =
+  match g.active_players with
+  | [] -> g
+  | old_current_player :: rest_of_players -> (
+      match rest_of_players with
+      | [] -> g
+      | next_player_up :: remaining_players ->
+          {
+            current_player = next_player_up;
+            active_players = remaining_players @ [ old_current_player ];
+            retired_players = g.retired_players;
+            game_board = g.game_board;
+          })
+
+let pay_current_player g amt =
+  let updated_player =
+    {
+      name = g.current_player.name;
+      money = g.current_player.money + amt;
+      career = g.current_player.career;
+      position = g.current_player.position;
+      houses = g.current_player.houses;
+      pegs = g.current_player.pegs;
+      has_degree = g.current_player.has_degree;
+    }
+  in
+  {
+    current_player = updated_player;
+    active_players = updated_player :: List.tl g.active_players;
+    retired_players = g.retired_players;
+    game_board = g.game_board;
+  }
+
+let land_on_payday g =
+  match g.current_player.career with
+  | None ->
+      print_endline
+        (g.current_player.name
+       ^ " landed on a payday, but they dont\n   have a job.");
+      switch_active_player g
+  | Some career ->
+      print_endline
+        (g.current_player.name ^ " landed on a payday, their bonus salary is: "
+        ^ string_of_int career.bonus_salary);
+      pay_current_player g career.bonus_salary |> switch_active_player
+
 let landed_spot_operations g =
   (*all functions should return updated game.t*)
   match g.current_player.position with

@@ -2,11 +2,27 @@ type career
 type player
 type t
 type board
-type spot
 
-val set_player_start : bool -> spot
-(** [set_player_start b] returns whether the player's starting spot will be from
-    the College start or the Career start spot *)
+type spot =
+  | Start of { next : spot option }
+  | Retire of { next : spot option }
+  | Payday of { next : spot option }
+  | Action of { next : spot option }
+  | MarriedStop of {
+      next : spot option;
+          (*two options on which path to take, when a path is chosen, you could
+            set players current spot to married_spot with the next being one of
+            the choices from the tuple*)
+    }
+  | FamilyStop of { next : spot option }
+  | CrisisStop of { next : spot option }
+  | GraduationStop of { next : spot option }
+  | House of { next : spot option }
+  | Friend of { next : spot option }
+  | Pet of { next : spot option }
+  | Baby of { next : spot option }
+  | Twins of { next : spot option }
+  | Career of { next : spot option }
 
 val set_player_career : bool -> career option
 (** [set_player_career b] returns whether the player's starting career will be
@@ -26,7 +42,7 @@ val end_game : t -> string
 (** [end_game g] is the name of the winner of the game based on their money
     amounts *)
 
-val make_player : string -> bool -> player
+val make_player : string -> bool -> spot -> player
 (* [make_player n c] takes in a name and a choice of college or not and returns
    a player *)
 
@@ -64,3 +80,7 @@ val current_player : t -> player
 (* [current_player g] returns the current player in game g *)
 
 val current_player_name : player -> string
+val retire_spot : spot
+
+val make_spot : string -> spot -> spot
+(** [make_spot s n] is the Spot object with type option s and next spot n *)

@@ -248,3 +248,23 @@ let first_turn_spin players =
 let active_players g = g.active_players
 let current_player g = g.current_player
 let current_player_name p = p.name
+let retire_spot = Retire { next = None }
+
+(** Constructs a Spot object with the spot_type and the next_spot *)
+let make_spot spot_type next_spot =
+  match spot_type with
+  | "StartCollege" -> Start { next = next_spot }
+  | "Payday" -> Payday { next = next_spot }
+  | "GraduationStop" -> GraduationStop { next = next_spot }
+  | "Action" -> Action { next = next_spot }
+  | "Career" -> Career { next = next_spot }
+  | "MarriedStop" -> MarriedStop { next = next_spot }
+  | "Pet" -> Pet { next = next_spot }
+  | "House" -> House { next = next_spot }
+  | "Friend" -> Friend { next = next_spot }
+  | "FamilyStop" -> FamilyStop { next = next_spot }
+  | "Baby" -> Baby { next = next_spot }
+  | "Twins" -> Twins { next = next_spot }
+  | "CrisisStop" -> CrisisStop { next = next_spot }
+  | "Retire" -> retire_spot
+  | _ -> failwith "unimplemented"

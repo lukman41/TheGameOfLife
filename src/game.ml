@@ -737,6 +737,10 @@ let rec draw_action_card action_lst g =
             has_degree = g.current_player.has_degree;
           }
         in
+        print_endline
+          (updated_current_player.name ^ ", you have "
+          ^ string_of_int updated_current_player.money
+          ^ " now");
         {
           current_player = updated_current_player;
           active_players = g.active_players;
@@ -988,11 +992,9 @@ let landed_spot_operations g =
       (*function to take player out of game so they can wait for other players
         to finish*)
   | Payday _ -> land_on_payday g (*funtion to pay players their bonus salary*)
-  | Action _ -> draw_action_card Cards.action_cards g
-  | MarriedStop { next } ->
-      failwith "unimplemented" (*function to perform stop choice*)
-  | FamilyStop { next } ->
-      failwith "unimplemented" (*function to perform stop choice*)
+  | Action _ -> draw_action_card Cards.action_cards g |> switch_active_player
+  | MarriedStop { next } -> married_stop_op g |> switch_active_player
+  | FamilyStop { next } -> family_stop_op g |> switch_active_player
   | CrisisStop { next } ->
       failwith "unimplemented" (*function to perform stop choice*)
   | GraduationStop { next } ->

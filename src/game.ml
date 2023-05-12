@@ -569,19 +569,19 @@ let land_on_payday g =
       print_endline
         (g.current_player.name
        ^ " landed on a payday, but they don't have a job.");
-      switch_active_player g
+      g
   | Some career ->
       print_endline
         (g.current_player.name ^ " landed on a payday, their bonus salary is: "
         ^ string_of_int career.bonus_salary);
-      pay_current_player g career.bonus_salary |> switch_active_player
+      pay_current_player g career.bonus_salary
 
 let pass_a_payday g =
   match g.current_player.career with
   | None ->
       print_endline
         (g.current_player.name ^ " passed a payday, but they don't have a job.");
-      switch_active_player g
+      g
   | Some career ->
       print_endline
         (g.current_player.name ^ " passed a payday, their salary is: "

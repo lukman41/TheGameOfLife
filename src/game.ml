@@ -241,11 +241,11 @@ module Board = struct
 end
 
 let board_spot_list = Board.board_from_json board_json |> Board.make_board
-
 let draw_career_at_start () = failwith "todo"
+
 let set_player_career = function
   | true -> None
-  | false -> draw_career_at_start()
+  | false -> draw_career_at_start ()
 
 let set_player_money = function
   | true -> 150000
@@ -420,11 +420,15 @@ let graduation_stop_operation g =
   | Some career -> g
 
 let rec family_stop_op game =
-  print_endline
-    "Choose whether or not you want to have/adopt a child with either yes or \
-     no.";
-  print_endline
-    {|to make a choice, type "choose" before the choice you want to make|};
+  ANSITerminal.print_string [ ANSITerminal.blue ]
+    "Do you want to have/adopt a child?";
+  print_newline ();
+  ANSITerminal.print_string [ ANSITerminal.yellow ]
+    {|To make a choice, type "choose" before the choice you want to make- yes or no.|};
+  print_newline ();
+  ANSITerminal.print_string [ ANSITerminal.yellow ]
+    {|For example: To have/adopt a child enter the phrase: choose yes|};
+  print_newline ();
   try
     match Command.parse (read_line ()) with
     | Choose i -> (
@@ -456,10 +460,15 @@ let rec family_stop_op game =
       family_stop_op game
 
 let rec married_stop_op game =
-  print_endline
-    "Choose whether or not you want to get married with either yes or no.";
-  print_endline
-    {|to make a choice, type "choose" before the choice you want to make|};
+  ANSITerminal.print_string [ ANSITerminal.blue ]
+    {|Do you want to get married?|};
+  print_newline ();
+  ANSITerminal.print_string [ ANSITerminal.yellow ]
+    {|To make a choice, type "choose" before the choice you want to make- yes or no.|};
+  print_newline ();
+  ANSITerminal.print_string [ ANSITerminal.yellow ]
+    {|For example: If you do not want to get married enter the phrase: choose no|};
+  print_newline ();
   try
     match Command.parse (read_line ()) with
     | Choose i -> (
@@ -590,18 +599,27 @@ let find_max players assoc_lst =
 
 let rec draw_action_card action_lst g = failwith "Unimplemented draw action"
 
+let rec string_player_order acc num = function
+  | [] -> ANSITerminal.print_string [ ANSITerminal.green ] (acc ^ ".")
+  | h :: t ->
+      if num = 0 then string_player_order (acc ^ h.name) 1 t
+      else string_player_order (acc ^ ", " ^ h.name) (num + 1) t
+
 let first_turn_spin players =
-  print_endline "Take turns spinning the wheel. The highest spin will go first.";
+  ANSITerminal.print_string [ ANSITerminal.yellow ]
+    "Take turns spinning the wheel. The highest spin will go first.";
+  print_newline ();
   let rec prompt_players p assoc_spun_lst =
     match p with
     | [] -> find_max players assoc_spun_lst
     | h :: t -> (
-        Stdlib.print_string (h.name ^ ", type ");
+        ANSITerminal.print_string [ ANSITerminal.blue ] (h.name ^ ", type ");
         ANSITerminal.print_string [ ANSITerminal.magenta ] "'s";
         ANSITerminal.print_string [ ANSITerminal.blue ] "p";
         ANSITerminal.print_string [ ANSITerminal.green ] "i";
         ANSITerminal.print_string [ ANSITerminal.yellow ] "n'";
-        print_endline " to spin.";
+        ANSITerminal.print_string [ ANSITerminal.blue ] " to spin.";
+        print_newline ();
         match read_line () with
         | "spin" ->
             let player_spin =
@@ -613,9 +631,18 @@ let first_turn_spin players =
               (h.name ^ " spun a " ^ string_of_int player_spin);
             print_newline ();
             prompt_players t ((h, player_spin) :: assoc_spun_lst)
-        | _ -> prompt_players p assoc_spun_lst)
+        | "quit" -> exit 0
+        | _ ->
+            ANSITerminal.print_string [ ANSITerminal.red ]
+              "That was the incorrect command, please try again.";
+            print_newline ();
+            prompt_players p assoc_spun_lst)
   in
   let current_player, active_players = prompt_players players [] in
+  ANSITerminal.print_string [ ANSITerminal.green ]
+    (current_player.name ^ " is going first! ");
+  string_player_order "The order is " 0 active_players;
+  print_newline ();
   {
     current_player;
     active_players;

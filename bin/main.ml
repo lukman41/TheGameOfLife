@@ -5,12 +5,14 @@ open Board
 
 let rec prompt_for_spin g =
   let p = Game.current_player g in
-  Stdlib.print_string (Game.current_player_name p ^ ", type ");
+  ANSITerminal.print_string [ ANSITerminal.blue ]
+    (Game.current_player_name p ^ ", type ");
   ANSITerminal.print_string [ ANSITerminal.magenta ] "'s";
   ANSITerminal.print_string [ ANSITerminal.blue ] "p";
   ANSITerminal.print_string [ ANSITerminal.green ] "i";
   ANSITerminal.print_string [ ANSITerminal.yellow ] "n'";
-  print_endline " to spin.";
+  ANSITerminal.print_string [ ANSITerminal.blue ] " to spin.";
+  print_newline ();
   try
     match Command.parse (read_line ()) with
     | Spin ->
@@ -62,9 +64,16 @@ let rec play g =
 (* decided to make move_current_player handle the switching of players *)
 
 let rec number_of_players_prompt () =
-  print_endline "Enter the number of players:  (Between 1 -4)";
-  print_endline
-    {|to make a choice type "choose" before the number you want to enter|};
+  ANSITerminal.print_string [ ANSITerminal.blue ]
+    "Enter the number of players:  (Between 1 -4)";
+  print_newline ();
+  ANSITerminal.print_string [ ANSITerminal.yellow ]
+    {|To make a choice type "choose" before the number you want to enter|};
+  print_newline ();
+
+  ANSITerminal.print_string [ ANSITerminal.yellow ]
+    {|For example: To play with 3 players, enter the phrase: choose 3|};
+  print_newline ();
   try
     match Command.parse (read_line ()) with
     | Choose i -> (
@@ -77,26 +86,32 @@ let rec number_of_players_prompt () =
     | Spin ->
         ANSITerminal.print_string [ ANSITerminal.red ]
           {|That was a spin command, to make a choice type "choose" before the number you want to enter |};
+        print_newline ();
         number_of_players_prompt ()
     | Start ->
         ANSITerminal.print_string [ ANSITerminal.red ]
           {|That was a start command, to make a choice type "choose" before the number you want to enter |};
+        print_newline ();
         number_of_players_prompt ()
   with
   | Empty ->
       ANSITerminal.print_string [ ANSITerminal.red ]
-        {|That command was empty, try " choose 4 " or something like that |};
+        {|That command was empty, please try again.  |};
+      print_newline ();
       number_of_players_prompt ()
   | Malformed ->
       ANSITerminal.print_string [ ANSITerminal.red ]
-        {|That command was malformed, try "choose 4" or something like that |};
+        {|That command was malformed, please try again. |};
+      print_newline ();
       number_of_players_prompt ()
 
 let rec player_name_prompt i =
   try
-    print_endline ("Player_" ^ string_of_int i ^ "'s name: ");
+    ANSITerminal.print_string [ ANSITerminal.blue ]
+      ("Player_" ^ string_of_int i ^ "'s name: ");
+    print_newline ();
     let input = read_line () in
-    if input = "" then raise Empty else input
+    if input = "" then raise Empty else if input = "quit" then exit 0 else input
   with Empty ->
     ANSITerminal.print_string [ ANSITerminal.red ] {|That name was empty.|};
     player_name_prompt i
@@ -104,10 +119,15 @@ let rec player_name_prompt i =
 let rec go_to_college_prompt name =
   (* uses Command.mli to prompt the player with the name they just used on if
      they want to go college or not. *)
-  print_endline
-    (name
-   ^ {|, do you want to go to college, or start your career? If you choose college, you must pay a $100,000 tuition fee, but you will be eligible for jobs that require a degree.  Type "choose yes" or "choose no"|}
-    );
+  ANSITerminal.print_string [ ANSITerminal.blue ]
+    (name ^ {|, do you want to go to college?|});
+  print_newline ();
+  ANSITerminal.print_string [ ANSITerminal.yellow ]
+    {|Remember that if you choose to go to college, you will be eligible for more jobs but you must pay a $100,000 tuition fee.|};
+  print_newline ();
+  ANSITerminal.print_string [ ANSITerminal.blue ]
+    {|Type "choose yes" or "choose no"|};
+  print_newline ();
   try
     match Command.parse (read_line ()) with
     | Choose i -> (
@@ -119,19 +139,23 @@ let rec go_to_college_prompt name =
     | Spin ->
         ANSITerminal.print_string [ ANSITerminal.red ]
           {|That was a spin command, to make a choice type "choose" before the choice you want to make |};
+        print_newline ();
         go_to_college_prompt name
     | Start ->
         ANSITerminal.print_string [ ANSITerminal.red ]
           {|That was a start command, to make a choice type "choose" before the choice you want to make |};
+        print_newline ();
         go_to_college_prompt name
   with
   | Empty ->
       ANSITerminal.print_string [ ANSITerminal.red ]
-        {|That command was empty, try " choose yes " or something like that |};
+        {|That command was empty, please try again. |};
+      print_newline ();
       go_to_college_prompt name
   | Malformed ->
       ANSITerminal.print_string [ ANSITerminal.red ]
-        {|That command was malformed, try "choose no" or something like that |};
+        {|That command was malformed, please try again.  |};
+      print_newline ();
       go_to_college_prompt name
 
 let rec prompt_for_name_and_college acc i =
@@ -151,13 +175,13 @@ let player_selection () =
     (prompt_for_name_and_college [] (number_of_players_prompt ()))
 
 let rec press_start () =
-  print_string "Type ";
+  ANSITerminal.print_string [ ANSITerminal.blue ] "Type ";
   ANSITerminal.print_string [ ANSITerminal.magenta ] "s";
   ANSITerminal.print_string [ ANSITerminal.blue ] "t";
   ANSITerminal.print_string [ ANSITerminal.green ] "a";
   ANSITerminal.print_string [ ANSITerminal.yellow ] "r";
   ANSITerminal.print_string [ ANSITerminal.magenta ] "t";
-  print_string " to begin the game: ";
+  ANSITerminal.print_string [ ANSITerminal.blue ] " to begin the game: ";
   try
     match Command.parse (read_line ()) with
     | Start -> ()
@@ -165,19 +189,23 @@ let rec press_start () =
     | Spin ->
         ANSITerminal.print_string [ ANSITerminal.red ]
           {|That was a spin command, try again.|};
+        print_newline ();
         press_start ()
     | Choose i ->
         ANSITerminal.print_string [ ANSITerminal.red ]
           {|That was a choose command, try again.|};
+        print_newline ();
         press_start ()
   with
   | Empty ->
       ANSITerminal.print_string [ ANSITerminal.red ]
         {|That was an empty command, try again.|};
+      print_newline ();
       press_start ()
   | Malformed ->
       ANSITerminal.print_string [ ANSITerminal.red ]
         {|That was a malformed command, try again.|};
+      print_newline ();
       press_start ()
 
 let main () =

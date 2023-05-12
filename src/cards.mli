@@ -13,9 +13,11 @@ open Game
     that prompts the player and then makes changes to the player. For a house
     card, we need a function to draw one, and let the player buy and sell them*)
 
-
-(* changed my mind they don't need individual functions, since they mostly all do the same thing. For example one type of action card just takes or gives you money so that is one function we can use for all those cards. Then another type of action card gives you a choice, so we could make a function that reads the choice and calls functions based on that. *)
+(* changed my mind they don't need individual functions, since they mostly all
+   do the same thing. For example one type of action card just takes or gives
+   you money so that is one function we can use for all those cards. Then
+   another type of action card gives you a choice, so we could make a function
+   that reads the choice and calls functions based on that. *)
 (* Our types house and career are sort of what I think the card types will be
    like, so it might be smarter to move those inside this module and just access
    them using Card.career or Card.house in the game module *)
-

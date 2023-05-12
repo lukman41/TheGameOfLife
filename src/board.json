@@ -7,6 +7,18 @@
     {
       "type": "Payday",
       "next": "GraduationStop"
+    },
+    {
+      "type": "GraduationStop",
+      "next": "Action"
+    },
+    {
+      "type": "Action",
+      "next": "Career"
+    },
+    {
+      "type": "Career",
+      "next" : "House"
     }
   ]
 }

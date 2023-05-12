@@ -172,7 +172,7 @@ let land_on_payday g =
   | None ->
       print_endline
         (g.current_player.name
-       ^ " landed on a payday, but they dont\n   have a job.");
+       ^ " landed on a payday, but they don't have a job.");
       switch_active_player g
   | Some career ->
       print_endline
@@ -180,16 +180,49 @@ let land_on_payday g =
         ^ string_of_int career.bonus_salary);
       pay_current_player g career.bonus_salary |> switch_active_player
 
+let pass_a_payday g =
+  match g.current_player.career with
+  | None ->
+      print_endline
+        (g.current_player.name ^ " passed a payday, but they don't have a job.");
+      switch_active_player g
+  | Some career ->
+      print_endline
+        (g.current_player.name ^ " passed a paydat, their salary is: "
+        ^ string_of_int career.salary);
+      pay_current_player g career.salary
+
+let add_pegs g amt =
+  let updated_player =
+    {
+      name = g.current_player.name;
+      money = g.current_player.money;
+      career = g.current_player.career;
+      position = g.current_player.position;
+      houses = g.current_player.houses;
+      pegs = g.current_player.pegs + amt;
+      has_degree = g.current_player.has_degree;
+    }
+  in
+  let updated_game =
+    {
+      current_player = updated_player;
+      active_players = updated_player :: List.tl g.active_players;
+      retired_players = g.retired_players;
+      game_board = g.game_board;
+    }
+  in
+  updated_game |> switch_active_player
+
 let landed_spot_operations g =
   (*all functions should return updated game.t*)
   match g.current_player.position with
   | Start _ -> failwith "unimplemented"
   | Retire _ ->
-      failwith "Undone"
+      move_player_to_retired g
       (*function to take player out of game so they can wait for other players
         to finish*)
-  | Payday _ ->
-      failwith "unimplemented" (*funtion to pay players their bonus salary*)
+  | Payday _ -> land_on_payday g (*funtion to pay players their bonus salary*)
   | Action _ -> failwith "unimplemented" (*function to draw action card*)
   | MarriedStop { next } ->
       failwith "unimplemented" (*function to perform stop choice*)
@@ -203,10 +236,10 @@ let landed_spot_operations g =
   | House _ ->
       failwith "unimplemented"
       (*function to draw a house card ask if player wants to buy, and *)
-  | Friend _ -> failwith "unimplemented" (*function to perform add peg choice*)
-  | Pet _ -> failwith "unimplemented" (*function to perform add peg choice*)
-  | Baby _ -> failwith "unimplemented" (*function to perform add peg choice*)
-  | Twins _ -> failwith "unimplemented" (*function to perform add peg choice*)
+  | Friend _ -> add_pegs g 1 (*function to perform add peg choice*)
+  | Pet _ -> add_pegs g 1 (*function to perform add peg choice*)
+  | Baby _ -> add_pegs g 1 (*function to perform add peg choice*)
+  | Twins _ -> add_pegs g 2 (*function to perform add peg choice*)
   | Career _ -> failwith "unimplemented" (*function to draw career card*)
 
 let rec move_helper g spin_number =
@@ -233,11 +266,10 @@ and passed_spot_operations g spin_number =
      it. *)
   match g.current_player.position with
   | Retire _ ->
-      failwith "Undone"
+      move_player_to_retired g
       (*function to take player out of game so they can wait for other players
         to finish*)
-  | Payday _ ->
-      failwith "unimplemented" (*function to pay players their bonus salary*)
+  | Payday _ -> pass_a_payday g (*function to pay players their bonus salary*)
   | MarriedStop { next } ->
       failwith "unimplemented" (*function to perform stop choice*)
   | FamilyStop { next } ->

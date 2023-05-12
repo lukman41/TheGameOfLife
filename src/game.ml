@@ -93,6 +93,33 @@ module Cards = struct
     requires_degree : bool;
   }
 
+  let action_card_prompt (card : action_cards) =
+    match card with
+    | Pay pcard -> pcard.prompt
+    | Spin scard -> scard.prompt
+    | Choice ccard -> ccard.prompt
+
+  let action_card_name (card : action_cards) =
+    match card with
+    | Pay pcard -> pcard.name
+    | Spin scard -> scard.name
+    | Choice ccard -> ccard.name
+
+  let pay_card_amount (card : action_cards) =
+    match card with
+    | Pay pcard -> pcard.amount
+    | _ -> failwith "Invalid action card type for pay_card_amount"
+
+  let spin_card_amounts (card : action_cards) =
+    match card with
+    | Spin s -> (s.even_amount, s.odd_amount)
+    | _ -> failwith "Invalid action card type for spin_card_amounts"
+
+  let choice_card_amounts (card : action_cards) =
+    match card with
+    | Choice s -> (s.a_amount, s.b_amount)
+    | _ -> failwith "Invalid action card type for choice_card_amounts"
+
   let action_from_pay_json json : action_cards =
     Pay
       {
@@ -597,7 +624,7 @@ let rec family_stop_op game =
         family_stop_op game
     | Draw ->
         ANSITerminal.print_string [ ANSITerminal.red ]
-          {|That was a draw command, to make a choice, type "choose" before the choice you want to enter |};
+          {|That was a draw command, to make a choice type "choose" before the choice you want to enter |};
         family_stop_op game
   with
   | Empty ->
@@ -608,6 +635,136 @@ let rec family_stop_op game =
       ANSITerminal.print_string [ ANSITerminal.red ]
         {|That command was malformed, try "choose no" or something like that |};
       family_stop_op game
+
+let rec spin_action_card () : int =
+  print_endline {|Type "draw" to draw an action card: |};
+  try
+    match Command.parse (read_line ()) with
+    | Spin -> spin
+    | Quit -> exit 0
+    | Draw ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a draw command, to draw an action card type "spin" |};
+        spin_action_card ()
+    | Start ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a start command, to draw an action card type "spin" |};
+        spin_action_card ()
+    | Choose _ ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a choose command, to draw an action card type "spin" |};
+        spin_action_card ()
+  with
+  | Empty ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That command was empty, try "spin" |};
+      spin_action_card ()
+  | Malformed ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That command was malformed, try "spin" |};
+      spin_action_card ()
+
+let rec choice_draw_action_helper (card : Cards.action_cards) =
+  print_endline "Here are your choices: ";
+  print_endline (card |> Cards.action_card_prompt);
+  print_endline "Choose option A or option B.";
+  print_endline
+    {|Type "choose A" or type "choose B" to indicate which option you would like to choose.|};
+  try
+    match Command.parse (read_line ()) with
+    | Choose i -> (
+        try
+          match i with
+          | h :: t ->
+              let a, b = Cards.choice_card_amounts card in
+              if h = "A" && List.length t = 0 then a
+              else if h = "B" && List.length t = 0 then b
+              else raise Malformed
+          | _ -> raise Malformed
+        with Failure _ -> raise Malformed)
+    | Quit -> exit 0
+    | Spin ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a spin command, to make a choice type "choose" before the choice you want to enter |};
+        choice_draw_action_helper card
+    | Start ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a start command, to make a choice type "choose" before the choice you want to enter |};
+        choice_draw_action_helper card
+    | Draw ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a draw command, to make a choice type "choose" before the choice you want to enter |};
+        choice_draw_action_helper card
+  with
+  | Empty ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That command was empty, try "choose yes" or something like that |};
+      choice_draw_action_helper card
+  | Malformed ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That command was malformed, try "choose no" or something like that |};
+      choice_draw_action_helper card
+
+let rec draw_action_card action_lst g =
+  print_endline {|Type "draw" to draw an action card: |};
+  try
+    match Command.parse (read_line ()) with
+    | Draw ->
+        let card = Cards.draw_card action_cards in
+        let name = Cards.action_card_name card in
+        let prompt = Cards.action_card_prompt card in
+        print_endline "Here is your card: ";
+        print_endline ("Name: " ^ name);
+        print_endline ("Prompt: " ^ prompt);
+
+        let player_money =
+          match card with
+          | Pay p -> g.current_player.money + p.amount
+          | Spin s -> (
+              match spin_action_card () mod 2 with
+              | 0 -> g.current_player.money + s.even_amount
+              | _ -> g.current_player.money + s.odd_amount)
+          | Choice c -> g.current_player.money + choice_draw_action_helper card
+        in
+        let updated_current_player =
+          {
+            name = g.current_player.name;
+            money = player_money;
+            career = g.current_player.career;
+            position = g.current_player.position;
+            houses = g.current_player.houses;
+            pegs = g.current_player.pegs;
+            has_degree = g.current_player.has_degree;
+          }
+        in
+        {
+          current_player = updated_current_player;
+          active_players = g.active_players;
+          retired_players = g.retired_players;
+          game_board = g.game_board;
+        }
+    | Quit -> exit 0
+    | Spin ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a spin command, to draw an action card type "draw" |};
+        draw_action_card action_lst g
+    | Start ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a start command, to draw an action card type "draw" |};
+        draw_action_card action_lst g
+    | Choose _ ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a choose command, to draw an action card type "draw" |};
+        draw_action_card action_lst g
+  with
+  | Empty ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That command was empty, try "choose yes" or something like that |};
+      draw_action_card action_lst g
+  | Malformed ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That command was malformed, try "choose no" or something like that |};
+      draw_action_card action_lst g
 
 let rec married_stop_op game =
   ANSITerminal.print_string [ ANSITerminal.blue ]
@@ -831,7 +988,7 @@ let landed_spot_operations g =
       (*function to take player out of game so they can wait for other players
         to finish*)
   | Payday _ -> land_on_payday g (*funtion to pay players their bonus salary*)
-  | Action _ -> failwith "unimplemented" (*function to draw action card*)
+  | Action _ -> draw_action_card Cards.action_cards g
   | MarriedStop { next } ->
       failwith "unimplemented" (*function to perform stop choice*)
   | FamilyStop { next } ->
@@ -920,14 +1077,6 @@ let find_max players assoc_lst =
   in
   (List.hd players, players)
 
-let rec draw_action_card action_lst g = failwith "Unimplemented draw action"
-
-let rec string_player_order acc num = function
-  | [] -> ANSITerminal.print_string [ ANSITerminal.green ] (acc ^ ".")
-  | h :: t ->
-      if num = 0 then string_player_order (acc ^ h.name) 1 t
-      else string_player_order (acc ^ ", " ^ h.name) (num + 1) t
-
 let first_turn_spin players =
   ANSITerminal.print_string [ ANSITerminal.yellow ]
     "Take turns spinning the wheel. The highest spin will go first.";
@@ -964,7 +1113,7 @@ let first_turn_spin players =
   let current_player, active_players = prompt_players players [] in
   ANSITerminal.print_string [ ANSITerminal.green ]
     (current_player.name ^ " is going first! ");
-  string_player_order "The order is " 0 active_players;
+  (* string_player_order "The order is " 0 active_players; *)
   print_newline ();
   {
     current_player;

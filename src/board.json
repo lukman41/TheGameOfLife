@@ -18,7 +18,63 @@
     },
     {
       "type": "Career",
-      "next" : "House"
+      "next": "MarriedStop"
+    },
+    {
+      "type": "MarriedStop",
+      "next": "Pet"
+    },
+    {
+      "type": "Pet",
+      "next": "House"
+    },
+    {
+      "type": "House",
+      "next": "Friend"
+    },
+    {
+      "type": "Friend",
+      "next": "Payday"
+    },
+    {
+      "type": "Payday",
+      "next": "FamilyStop"
+    },
+    {
+      "type": "FamilyStop",
+      "next": "Action"
+    },
+    {
+      "type": "Action",
+      "next": "Baby"
+    },
+    {
+      "type": "Baby",
+      "next": "Twins"
+    },
+    {
+      "type": "Twins",
+      "next": "CrisisStop"
+    },
+    {
+      "type": "CrisisStop",
+      "next": "Career"
+    },
+    {
+      "type": "Career",
+      "next": "Action"
+    },
+    {
+      "type": "Action",
+      "next": "House"
+    },
+    {
+      "type": "House",
+      "next": "Retire"
+    },
+    {
+      "type": "Retire",
+      "next": "None"
     }
   ]
 }

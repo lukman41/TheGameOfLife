@@ -12,6 +12,7 @@ type spot =
             set players current spot to married_spot with the next being one of
             the choices from the tuple*)
     }
+<<<<<<< Updated upstream
   | FamilyStop of { next : spot option }
   | CrisisStop of { next : spot option }
   | RetireEarlyStop of { next : spot option }
@@ -22,6 +23,26 @@ type spot =
   | Baby of { next : spot option }
   | Twins of { next : spot option }
   | Career of { next : spot option }
+=======
+  | FamilyStop of {
+      prompt : string;
+      next : spot;
+    }
+  | CrisisStop of {
+      prompt : string;
+      next : spot;
+    }
+  | GraduationStop of {
+      prompt : string;
+      next : spot;
+    }
+  | House of { next : spot }
+  | Friend of { next : spot }
+  | Pet of { next : spot }
+  | Baby of { next : spot }
+  | Twins of { next : spot }
+  | Career of { next : spot }
+>>>>>>> Stashed changes
 
 type board = spot list
 

@@ -1,6 +1,7 @@
 (* open Yojson.Basic.Util *)
 open ANSITerminal
 open Command
+open Cards
 
 type spot =
   | Start of { next : spot option }
@@ -51,6 +52,7 @@ type t = {
   game_board : board;
 }
 
+ 
 let set_player_career = function
   | true -> None
   | false -> failwith "function to draw career cards"

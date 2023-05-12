@@ -813,25 +813,19 @@ let rec married_stop_op game =
       ANSITerminal.print_string [ ANSITerminal.red ]
         {|That command was malformed, try "choose no" or something like that |};
       married_stop_op game
+    
 
-let rec sell_house_op (house : house) game =
-  print_endline "Would you like to sell a house? Yes/No.";
-  try
-    match Command.parse (read_line ()) with
-    | Choose i -> (
-        try
-          match i with
-          | h :: t ->
-              if h = "yes" && List.length t = 0 then
-                let new_house_list =
-                  List.filter
-                    (fun (h : house) -> h.name <> house.name)
-                    game.current_player.houses
-                in
-                let updated_player =
+      let rec sell_house_op (house: house) game = 
+            let new_house_list = List.filter (fun (h: house) -> h.name <> house.name) (game.current_player.houses) 
+              in print_endline "Spin to see what price your house will sell for."; 
+              print_endline ("If your spin number is even, your house will sell for " ^ string_of_int house.sell_even); 
+              print_endline ("And if your spin number is odd, your house will sell for " ^ string_of_int house.sell_odd); 
+              let spin = prompt_for_spin game in let even_odd = if (spin mod 2) = 0 then 
+              house.sell_even else house.sell_odd
+                in let updated_player =
                   {
                     name = game.current_player.name;
-                    money = game.current_player.money + house.purchase_price;
+                    money = game.current_player.money + even_odd;
                     career = game.current_player.career;
                     position = game.current_player.position;
                     houses = new_house_list;
@@ -849,89 +843,106 @@ let rec sell_house_op (house : house) game =
                   }
                 in
                 updated_game
-              else if h = "no" && List.length t = 0 then game
-              else raise Malformed
-          | _ -> raise Malformed
-        with Failure _ -> raise Malformed)
-    | Quit -> exit 0
-    | Spin ->
-        ANSITerminal.print_string [ ANSITerminal.red ]
-          {|That was a spin command, to make a choice, type "choose" before the choice you want to enter |};
-        sell_house_op house game
-    | Start ->
-        ANSITerminal.print_string [ ANSITerminal.red ]
-          {|That was a start command, to make a choice, type "choose" before the choice you want to enter |};
-        sell_house_op house game
-    | Draw ->
-        ANSITerminal.print_string [ ANSITerminal.red ]
-          {|That was a draw command, to make a choice, type "choose" before the choice you want to enter |};
-        sell_house_op house game
-  with
-  | Empty ->
-      ANSITerminal.print_string [ ANSITerminal.red ]
-        {|That command was empty, try "choose yes" or something like that |};
-      sell_house_op house game
-  | Malformed ->
-      ANSITerminal.print_string [ ANSITerminal.red ]
-        {|That command was malformed, try "choose no" or something like that |};
-      sell_house_op house game
 
-let rec buy_house_op house game =
-  try
-    match Command.parse (read_line ()) with
-    | Choose i -> (
-        try
-          match i with
-          | h :: t ->
-              if h = "yes" && List.length t = 0 then
-                let updated_player =
-                  {
-                    name = game.current_player.name;
-                    money = game.current_player.money - house.purchase_price;
-                    career = game.current_player.career;
-                    position = game.current_player.position;
-                    houses = house :: game.current_player.houses;
-                    pegs = game.current_player.pegs;
-                    has_degree = game.current_player.has_degree;
-                  }
-                in
-                let updated_game =
-                  {
-                    current_player = updated_player;
-                    active_players =
-                      updated_player :: List.tl game.active_players;
-                    retired_players = game.retired_players;
-                    game_board = game.game_board;
-                  }
-                in
-                updated_game
-              else if h = "no" && List.length t = 0 then
-                sell_house_op house game
-              else raise Malformed
-          | _ -> raise Malformed
-        with Failure _ -> raise Malformed)
-    | Quit -> exit 0
-    | Spin ->
-        ANSITerminal.print_string [ ANSITerminal.red ]
-          {|That was a spin command, to make a choice, type "choose" before the choice you want to enter |};
-        buy_house_op house game
-    | Start ->
-        ANSITerminal.print_string [ ANSITerminal.red ]
-          {|That was a start command, to make a choice, type "choose" before the choice you want to enter |};
-        buy_house_op house game
-    | Draw ->
-        ANSITerminal.print_string [ ANSITerminal.red ]
-          {|That was a draw command, to make a choice, type "choose" before the choice you want to enter |};
-        buy_house_op house game
-  with
-  | Empty ->
-      ANSITerminal.print_string [ ANSITerminal.red ]
-        {|That command was empty, try "choose yes" or something like that |};
-      buy_house_op house game
-  | Malformed ->
-      ANSITerminal.print_string [ ANSITerminal.red ]
-        {|That command was malformed, try "choose no" or something like that |};
-      buy_house_op house game
+      let rec check_all_houses (house_list: house list) game =
+      if List.length house_list > 0 then (
+      match house_list with
+      | [] -> game
+      | house :: rest -> print_endline ("Name: " ^ house.name);
+        print_endline ("Price: " ^ string_of_int house.purchase_price);
+        print_endline ("Even: " ^ string_of_int house.sell_even);
+        print_endline ("Odd: " ^ string_of_int house.sell_odd);
+        print_endline ("Would you like to sell this house? Yes/No.");
+        try 
+          match Command.parse (read_line ()) with
+          | Choose i -> (
+            try
+              match i with 
+                | h :: t ->
+                if h = "yes" && List.length t = 0 then 
+                  sell_house_op house game
+                else if h = "no" && List.length t = 0 then check_all_houses rest game
+                else raise Malformed
+              | _ -> raise Malformed
+           with Failure _ -> raise Malformed)
+        | Quit -> exit 0
+        | Spin ->
+            ANSITerminal.print_string [ ANSITerminal.red ]
+              {|That was a spin command, to make a choice, type "choose" before the choice you want to enter |};
+            check_all_houses house_list game
+        | Start ->
+            ANSITerminal.print_string [ ANSITerminal.red ]
+              {|That was a start command, to make a choice, type "choose" before the choice you want to enter |};
+            check_all_houses house_list game
+        | Draw ->
+            ANSITerminal.print_string [ ANSITerminal.red ]
+              {|That was a draw command, to make a choice, type "choose" before the choice you want to enter |};
+            check_all_houses house_list game
+    with
+      | Empty ->
+          ANSITerminal.print_string [ ANSITerminal.red ]
+            {|That command was empty, try "choose yes" or something like that |};
+          check_all_houses house_list game
+      | Malformed ->
+          ANSITerminal.print_string [ ANSITerminal.red ]
+            {|That command was malformed, try "choose no" or something like that |};
+          check_all_houses house_list game) 
+        else game
+               
+
+      let rec buy_house_op house game = 
+        try 
+            match Command.parse (read_line ()) with
+              | Choose i -> (
+                try
+                  match i with 
+                    | h :: t ->
+                      if h = "yes" && List.length t = 0 then let updated_player =
+                        {
+                          name = game.current_player.name;
+                          money = game.current_player.money - house.purchase_price;
+                          career = game.current_player.career;
+                          position = game.current_player.position;
+                          houses = house :: game.current_player.houses;
+                          pegs = game.current_player.pegs;
+                          has_degree = game.current_player.has_degree;
+                        }
+                      in
+                      let updated_game =
+                        {
+                          current_player = updated_player;
+                          active_players = updated_player :: List.tl game.active_players;
+                          retired_players = game.retired_players;
+                          game_board = game.game_board;
+                        }
+                      in
+                      updated_game
+                      else if h = "no" && List.length t = 0 then check_all_houses game.current_player.houses game
+                      else raise Malformed
+                    | _ -> raise Malformed
+                 with Failure _ -> raise Malformed)
+              | Quit -> exit 0
+              | Spin ->
+                  ANSITerminal.print_string [ ANSITerminal.red ]
+                    {|That was a spin command, to make a choice, type "choose" before the choice you want to enter |};
+                  buy_house_op house game
+              | Start ->
+                  ANSITerminal.print_string [ ANSITerminal.red ]
+                    {|That was a start command, to make a choice, type "choose" before the choice you want to enter |};
+                  buy_house_op house game
+              | Draw ->
+                  ANSITerminal.print_string [ ANSITerminal.red ]
+                    {|That was a draw command, to make a choice, type "choose" before the choice you want to enter |};
+                  buy_house_op house game
+          with
+            | Empty ->
+                ANSITerminal.print_string [ ANSITerminal.red ]
+                  {|That command was empty, try "choose yes" or something like that |};
+                buy_house_op house game
+            | Malformed ->
+                ANSITerminal.print_string [ ANSITerminal.red ]
+                  {|That command was malformed, try "choose no" or something like that |};
+                buy_house_op house game
 
 let rec landed_house_op game =
   try

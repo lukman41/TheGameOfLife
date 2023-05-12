@@ -285,8 +285,8 @@ let rec prompt_for_spin g =
     | Spin ->
         let player_spin =
           Random.self_init ();
-          let r = Random.int 12 in
-          if r = 0 || r = 1 then 1 else r - 1
+          let r = Random.int 10 in
+          r + 1
         in
         ANSITerminal.print_string [ ANSITerminal.green ]
           (p.name ^ " spun a " ^ string_of_int player_spin);
@@ -360,8 +360,9 @@ let rec choose_from_three_cards (c1 : Cards.career_card)
         match String.concat " " w with
         | "a" ->
             ANSITerminal.print_string [ ANSITerminal.blue ]
-              "Congrats your new career is  ";
-            print_endline c1.name;
+              "Congratulations! Your new career is ";
+            ANSITerminal.print_string [ ANSITerminal.green ] c1.name;
+            print_newline ();
             {
               name = c1.name;
               salary = c1.salary;
@@ -370,8 +371,9 @@ let rec choose_from_three_cards (c1 : Cards.career_card)
             }
         | "b" ->
             ANSITerminal.print_string [ ANSITerminal.blue ]
-              "Congrats your new career is  ";
-            print_endline c2.name;
+              "Congratulations! Your new career is  ";
+            ANSITerminal.print_string [ ANSITerminal.green ] c2.name;
+            print_newline ();
             {
               name = c2.name;
               salary = c2.salary;
@@ -380,8 +382,9 @@ let rec choose_from_three_cards (c1 : Cards.career_card)
             }
         | "c" ->
             ANSITerminal.print_string [ ANSITerminal.blue ]
-              "Congrats your new career is  ";
-            print_endline c3.name;
+              "Congratulations! Your new career is  ";
+            ANSITerminal.print_string [ ANSITerminal.green ] c3.name;
+            print_newline ();
             {
               name = c3.name;
               salary = c3.salary;
@@ -639,7 +642,7 @@ let graduation_stop_operation g =
 
 let rec family_stop_op game =
   ANSITerminal.print_string [ ANSITerminal.blue ]
-    "Do you want to have/adopt a child?";
+    (game.current_player.name ^ ", do you want to have/adopt a child?");
   print_newline ();
   ANSITerminal.print_string [ ANSITerminal.yellow ]
     {|To make a choice, type "choose" before the choice you want to make- yes or no.|};
@@ -1185,8 +1188,8 @@ let first_turn_spin players =
         | "spin" ->
             let player_spin =
               Random.self_init ();
-              let r = Random.int 12 in
-              if r = 0 || r = 1 then 1 else r - 1
+              let r = Random.int 10 in
+              r + 1
             in
             ANSITerminal.print_string [ ANSITerminal.green ]
               (h.name ^ " spun a " ^ string_of_int player_spin);

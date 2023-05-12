@@ -32,6 +32,10 @@ let rec prompt_for_spin g =
         ANSITerminal.print_string [ ANSITerminal.red ]
           {|That was a start command, try "spin" or "quit" |};
         prompt_for_spin g
+    | Draw ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a draw command, try "spin" or "quit" |};
+        prompt_for_spin g
   with
   | Empty ->
       ANSITerminal.print_string [ ANSITerminal.red ]
@@ -82,6 +86,10 @@ let rec number_of_players_prompt () =
         ANSITerminal.print_string [ ANSITerminal.red ]
           {|That was a start command, to make a choice type "choose" before the number you want to enter |};
         number_of_players_prompt ()
+    | Draw ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a draw command, to make a choice type "choose" before the number you want to enter |};
+        number_of_players_prompt ()
   with
   | Empty ->
       ANSITerminal.print_string [ ANSITerminal.red ]
@@ -123,6 +131,10 @@ let rec go_to_college_prompt name =
     | Start ->
         ANSITerminal.print_string [ ANSITerminal.red ]
           {|That was a start command, to make a choice type "choose" before the choice you want to make |};
+        go_to_college_prompt name
+    | Draw ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a draw command, to make a choice type "choose" before the choice you want to make |};
         go_to_college_prompt name
   with
   | Empty ->
@@ -169,6 +181,10 @@ let rec press_start () =
     | Choose i ->
         ANSITerminal.print_string [ ANSITerminal.red ]
           {|That was a choose command, try again.|};
+        press_start ()
+    | Draw ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a draw command, try again.|};
         press_start ()
   with
   | Empty ->

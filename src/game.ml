@@ -241,11 +241,34 @@ module Board = struct
 end
 
 let board_spot_list = Board.board_from_json board_json |> Board.make_board
+let choose_from_three_cards c1 c2 c3 name = failwith "todo"
 
-let draw_career_at_start () = failwith "todo"
-let set_player_career = function
+let rec draw_career_at_start name =
+  print_endline
+    (name
+   ^ {|, you need to draw three career cards to choose from. type "draw" to draw: |}
+    );
+  match Command.parse (read_line ()) with
+  | Draw ->
+      let c1 = Cards.draw_card career_cards in
+      let c2 = Cards.draw_card career_cards in
+      let c3 = Cards.draw_card career_cards in
+      choose_from_three_cards c1 c2 c3 name
+  | Spin ->
+      print_endline {| that was a spin command, type "draw" |};
+      draw_career_at_start name
+  | Choose a ->
+      print_endline {| that was a choose command, type "draw" |};
+      draw_career_at_start name
+  | Quit -> exit 0
+  | Start ->
+      print_endline {| that was a start command, type "draw" |};
+      draw_career_at_start name
+
+let set_player_career c name =
+  match c with
   | true -> None
-  | false -> draw_career_at_start()
+  | false -> draw_career_at_start name
 
 let set_player_money = function
   | true -> 150000
@@ -254,7 +277,7 @@ let set_player_money = function
 let make_player name choice =
   {
     name;
-    career = set_player_career choice;
+    career = set_player_career choice name;
     money = set_player_money choice;
     position = Board.start_spot board_spot_list;
     houses = [];

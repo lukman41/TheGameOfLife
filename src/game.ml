@@ -1,7 +1,6 @@
 (* open Yojson.Basic.Util *)
 open ANSITerminal
 
-
 type spot =
   | Start of { next : spot option }
   | Retire of { next : spot option }
@@ -215,6 +214,13 @@ let add_pegs g amt =
   in
   updated_game
 
+let graduation_stop_operation g =
+  match g.current_player.career with
+  | None ->
+      print_endline "You Graduated. Now Pick a career!";
+      failwith "todo function to draw career cards"
+  | Some career -> g
+
 let landed_spot_operations g =
   (*all functions should return updated game.t*)
   match g.current_player.position with
@@ -232,7 +238,7 @@ let landed_spot_operations g =
   | CrisisStop { next } ->
       failwith "unimplemented" (*function to perform stop choice*)
   | GraduationStop { next } ->
-      failwith "unimplemented"
+      graduation_stop_operation g |> switch_active_player
       (* function to perform stop choice and check if you graduated *)
   | House _ ->
       failwith "unimplemented"
@@ -289,7 +295,8 @@ and passed_spot_operations g spin_number =
   | CrisisStop { next } ->
       failwith "unimplemented" (*function to perform stop choice*)
   | GraduationStop { next } ->
-      failwith "unimplemented"
+      let g = graduation_stop_operation g in
+      move_helper g (spin_number - 1)
       (* function to perform stop and check if you graduated *)
   | _ -> move_helper g (spin_number - 1)
 (*Since you dont do anything when you pass the rest of the spots,only when you
@@ -346,3 +353,44 @@ let first_turn_spin players =
 let active_players g = g.active_players
 let current_player g = g.current_player
 let current_player_name p = p.name
+
+let rec prompt_for_spin g =
+  let p = Game.current_player g in
+  Stdlib.print_string (Game.current_player_name p ^ ", type ");
+  ANSITerminal.print_string [ ANSITerminal.magenta ] "'s";
+  ANSITerminal.print_string [ ANSITerminal.blue ] "p";
+  ANSITerminal.print_string [ ANSITerminal.green ] "i";
+  ANSITerminal.print_string [ ANSITerminal.yellow ] "n'";
+  print_endline " to spin.";
+  try
+    match Command.parse (read_line ()) with
+    | Spin ->
+        let player_spin =
+          Random.self_init ();
+          let r = Random.int 12 in
+          if r = 0 || r = 1 then 1 else r - 1
+        in
+        ANSITerminal.print_string [ ANSITerminal.green ]
+          (Game.current_player_name p ^ " spun a " ^ string_of_int player_spin);
+        print_newline ();
+        player_spin
+    | Quit -> exit 0
+    | Choose _ ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That Command was a choose, try "spin" or "quit" |};
+        prompt_for_spin g
+    | Start ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a start command, try "spin" or "quit" |};
+        prompt_for_spin g
+  with
+  | Empty ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That Command was empty, try "spin" or "quit" |};
+      print_newline ();
+      prompt_for_spin g
+  | Malformed ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That Command was malformed, try try "spin" or "quit" |};
+      print_newline ();
+      prompt_for_spin g

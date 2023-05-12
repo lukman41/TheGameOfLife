@@ -33,8 +33,8 @@ type career = {
 type house = {
   name : string;
   purchase_price : int;
-  sell_red : int;
-  sell_black : int;
+  sell_even : int;
+  sell_odd : int;
 }
 
 type player = {
@@ -419,6 +419,7 @@ let graduation_stop_operation g =
       failwith "todo function to draw career cards"
   | Some career -> g
 
+<<<<<<< Updated upstream
 let rec family_stop_op game =
   print_endline
     "Choose whether or not you want to have/adopt a child with either yes or \
@@ -490,6 +491,9 @@ let rec married_stop_op game =
         {|That command was malformed, try "choose no" or something like that |};
       married_stop_op game
 
+=======
+  let print_endline_prompt s = print_endline s
+>>>>>>> Stashed changes
 let landed_spot_operations g =
   (*all functions should return updated game.t*)
   match g.current_player.position with
@@ -525,6 +529,8 @@ let landed_spot_operations g =
       add_pegs g 2
       |> switch_active_player (*function to perform add peg choice*)
   | Career _ -> failwith "unimplemented" (*function to draw career card*)
+
+
 
 let rec move_helper g spin_number =
   match spin_number with
@@ -569,6 +575,82 @@ and passed_spot_operations g spin_number =
   land on them, we can just call the helper with the player moved one spot over
   and one less spot to go*)
 
+<<<<<<< Updated upstream
+=======
+
+
+let rec family_stop_op game =
+  print_endline_prompt
+    "Choose whether or not you want to have/adopt a child with either yes or \
+     no.";
+  print_endline
+    {|to make a choice, type "choose" before the choice you want to make|};
+  try
+    match Command.parse (read_line ()) with
+    | Choose i -> (
+        try
+          match i with
+          | h :: t ->
+              if h = "yes" && List.length t = 0 then add_pegs game 1
+              else if h = "no" && List.length t = 0 then game
+              else raise Malformed
+          | _ -> raise Malformed
+        with Failure _ -> raise Malformed)
+    | Quit -> exit 0
+    | Spin ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a spin command, to make a choice type "choose" before the choice you want to enter |};
+        family_stop_op game
+    | Start ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a start command, to make a choice type "choose" before the choice you want to enter |};
+        family_stop_op game
+  with
+  | Empty ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That command was empty, try "choose yes" or something like that |};
+      family_stop_op game
+  | Malformed ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That command was malformed, try "choose no" or something like that |};
+      family_stop_op game
+
+let rec married_stop_op game =
+  print_endline
+    "Choose whether or not you want to get married with either yes or no.";
+  print_endline
+    {|to make a choice, type "choose" before the choice you want to make|};
+  try
+    match Command.parse (read_line ()) with
+    | Choose i -> (
+        try
+          match i with
+          | h :: t ->
+              if h = "yes" && List.length t = 0 then add_pegs game 1
+              else if h = "no" && List.length t = 0 then game
+              else raise Malformed
+          | _ -> raise Malformed
+        with Failure _ -> raise Malformed)
+    | Quit -> exit 0
+    | Spin ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a spin command, to make a choice type "choose" before the choice you want to enter |};
+        married_stop_op game
+    | Start ->
+        ANSITerminal.print_string [ ANSITerminal.red ]
+          {|That was a start command, to make a choice type "choose" before the choice you want to enter |};
+        married_stop_op game
+  with
+  | Empty ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That command was empty, try "choose yes" or something like that |};
+      married_stop_op game
+  | Malformed ->
+      ANSITerminal.print_string [ ANSITerminal.red ]
+        {|That command was malformed, try "choose no" or something like that |};
+      married_stop_op game
+
+>>>>>>> Stashed changes
 let move_current_player g i = move_helper g i
 
 let end_game g =

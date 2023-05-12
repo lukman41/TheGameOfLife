@@ -42,7 +42,7 @@ val end_game : t -> string
 (** [end_game g] is the name of the winner of the game based on their money
     amounts *)
 
-val make_player : string -> bool -> spot -> player
+val make_player : string -> bool -> player
 (* [make_player n c] takes in a name and a choice of college or not and returns
    a player *)
 

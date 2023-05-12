@@ -145,8 +145,10 @@ let rec prompt_for_name_and_college acc i =
         ((name, go_to_college_prompt name) :: acc)
         (i - 1)
 
-(* let player_selection () = List.map (fun (s, b) -> make_player s b)
-   (prompt_for_name_and_college [] (number_of_players_prompt ())) *)
+let player_selection () =
+  List.map
+    (fun (s, b) -> make_player s b)
+    (prompt_for_name_and_college [] (number_of_players_prompt ()))
 
 let rec press_start () =
   print_string "Type ";
@@ -187,14 +189,15 @@ let main () =
   ANSITerminal.print_string [ ANSITerminal.yellow ] "E";
   print_endline "! ";
   (* Maybe add instructions on how to play? *)
-  press_start ()
-(* let game = first_turn_spin (player_selection ()) in let winner = play game in
-   ANSITerminal.print_string [ ANSITerminal.magenta ] "W";
-   ANSITerminal.print_string [ ANSITerminal.blue ] "I";
-   ANSITerminal.print_string [ ANSITerminal.green ] "N";
-   ANSITerminal.print_string [ ANSITerminal.yellow ] "N";
-   ANSITerminal.print_string [ ANSITerminal.magenta ] "E";
-   ANSITerminal.print_string [ ANSITerminal.blue ] "R"; print_string ("!: " ^
-   winner ^ " ") *)
+  press_start ();
+  let game = first_turn_spin (player_selection ()) in
+  let winner = play game in
+  ANSITerminal.print_string [ ANSITerminal.magenta ] "W";
+  ANSITerminal.print_string [ ANSITerminal.blue ] "I";
+  ANSITerminal.print_string [ ANSITerminal.green ] "N";
+  ANSITerminal.print_string [ ANSITerminal.yellow ] "N";
+  ANSITerminal.print_string [ ANSITerminal.magenta ] "E";
+  ANSITerminal.print_string [ ANSITerminal.blue ] "R";
+  print_string ("!: " ^ winner ^ " ")
 
 let () = main ()

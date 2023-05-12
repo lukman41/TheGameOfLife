@@ -3,6 +3,8 @@ open ANSITerminal
 open Command
 open Cards
 
+let data_dir_prefix = "data" ^ Filename.dir_sep
+
 type spot =
   | Start of { next : spot option }
   | Retire of { next : spot option }
@@ -115,8 +117,8 @@ module Cards = struct
         id = json |> member "id" |> to_int;
         name = json |> member "name" |> to_string;
         prompt = json |> member "prompt" |> to_string;
-        a_amount = json |> member "even_amount" |> to_int;
-        b_amount = json |> member "odd_amount" |> to_int;
+        a_amount = json |> member "a_amount" |> to_int;
+        b_amount = json |> member "b_amount" |> to_int;
       }
 
   let house_from_json json : house_card =
@@ -124,8 +126,8 @@ module Cards = struct
       id = json |> member "id" |> to_int;
       name = json |> member "name" |> to_string;
       price = json |> member "price" |> to_int;
-      even_amount = json |> member "even_amount" |> to_int;
-      odd_amount = json |> member "odd_amount" |> to_int;
+      even_amount = json |> member "spin_even" |> to_int;
+      odd_amount = json |> member "spin_odd" |> to_int;
     }
 
   let career_from_json json : career_card =
@@ -172,6 +174,15 @@ module Cards = struct
     draw_card_helper l r
 end
 
+let cards_json = Yojson.Basic.from_file (data_dir_prefix ^ "cards.json")
+
+(**Need to figure out how to open the json files correctly- Look at a2. Right
+   now we are getting errors the way we are doing it *)
+let action_cards = Cards.action_cards cards_json
+
+let house_cards = Cards.house_cards cards_json
+let career_cards = Cards.career_cards cards_json
+let board_json = Yojson.Basic.from_file (data_dir_prefix ^ "board.json")
 let retire_spot = Retire { next = None }
 
 (** Constructs a Spot object with the spot_type and the next_spot *)
@@ -196,7 +207,7 @@ let make_spot spot_type (next_spot : spot) =
 module Board = struct
   (**Takes in a single spot from the json and returns the type of spot as a
      string*)
-  let get_spot_type json = json |> member "name" |> to_string
+  let get_spot_type json = json |> member "type" |> to_string
 
   (** Takes in the board json and outputs it as a list in order with the
       spot_types as strings*)
@@ -227,16 +238,18 @@ module Board = struct
   let start_spot board = List.hd board
 end
 
+let board_spot_list = Board.board_from_json board_json |> Board.make_board
+
 let set_player_career = function
   | true -> None
   | false -> failwith "function to draw career cards"
 
-let make_player name choice pos =
+let make_player name choice =
   {
     name;
     career = set_player_career choice;
     money = 250000;
-    position = pos;
+    position = Board.start_spot board_spot_list;
     houses = [];
     pegs = 0;
     has_degree = false;
@@ -270,15 +283,6 @@ let spin =
   Random.self_init ();
   let r = Random.int 10 in
   r + 1
-
-(**Need to figure out how to open the json files correctly- Look at a2. Right
-   now we are getting errors the way we are doing it *)
-let card_json = Yojson.Basic.from_file "cards.json"
-
-let board_json = Yojson.Basic.from_file "board.json"
-let action_card = Cards.action_cards card_json
-let house_cards = Cards.house_cards card_json
-let career_cards = Cards.career_cards card_json
 
 let get_next_position pos =
   match pos with
@@ -407,92 +411,8 @@ let graduation_stop_operation g =
       failwith "todo function to draw career cards"
   | Some career -> g
 
-let landed_spot_operations g =
-  (*all functions should return updated game.t*)
-  match g.current_player.position with
-  | Start _ -> failwith "unimplemented"
-  | Retire _ ->
-      move_player_to_retired g
-      (*function to take player out of game so they can wait for other players
-        to finish*)
-  | Payday _ -> land_on_payday g (*funtion to pay players their bonus salary*)
-  | Action _ -> failwith "unimplemented" (*function to draw action card*)
-  | MarriedStop { next } ->
-      failwith "unimplemented" (*function to perform stop choice*)
-  | FamilyStop { next } ->
-      failwith "unimplemented" (*function to perform stop choice*)
-  | CrisisStop { next } ->
-      failwith "unimplemented" (*function to perform stop choice*)
-  | GraduationStop { next } ->
-      graduation_stop_operation g |> switch_active_player
-      (* function to perform stop choice and check if you graduated *)
-  | House _ ->
-      failwith "unimplemented"
-      (*function to draw a house card ask if player wants to buy, and *)
-  | Friend _ ->
-      add_pegs g 1
-      |> switch_active_player (*function to perform add peg choice*)
-  | Pet _ ->
-      add_pegs g 1
-      |> switch_active_player (*function to perform add peg choice*)
-  | Baby _ ->
-      add_pegs g 1
-      |> switch_active_player (*function to perform add peg choice*)
-  | Twins _ ->
-      add_pegs g 2
-      |> switch_active_player (*function to perform add peg choice*)
-  | Career _ -> failwith "unimplemented" (*function to draw career card*)
-
-let rec move_helper g spin_number =
-  match spin_number with
-  | 0 -> landed_spot_operations g
-  | _ ->
-      let moved_player = move_player_spot g.current_player in
-      let game_with_player_moved =
-        {
-          current_player = moved_player;
-          active_players = moved_player :: List.tl g.active_players;
-          retired_players = g.retired_players;
-          game_board = g.game_board;
-        }
-      in
-      passed_spot_operations game_with_player_moved spin_number
-
-and passed_spot_operations g spin_number =
-  (* all branches sh ould call move helper again except retire. For example at a
-     payday, pay out the bonus salary, then call move helper with one less spin.
-     At a stop prompt and get the choice, then perform any necessary actions and
-     prompt for player to spin again, calling move helper with that new spin
-     number. We can use the same retire function whether you land on it or pass
-     it. *)
-  match g.current_player.position with
-  | Retire _ ->
-      move_player_to_retired g
-      (*function to take player out of game so they can wait for other players
-        to finish*)
-  | Payday _ ->
-      let g = pass_a_payday g in
-      move_helper g (spin_number - 1)
-      (*function to pay players their bonus salary*)
-  | MarriedStop { next } ->
-      failwith "unimplemented" (*function to perform stop choice*)
-  | FamilyStop { next } ->
-      failwith "unimplemented" (*function to perform stop choice*)
-  | CrisisStop { next } ->
-      failwith "unimplemented" (*function to perform stop choice*)
-  | GraduationStop { next } ->
-      let g = graduation_stop_operation g in
-      move_helper g (spin_number - 1)
-      (* function to perform stop and check if you graduated *)
-  | _ -> move_helper g (spin_number - 1)
-(*Since you dont do anything when you pass the rest of the spots,only when you
-  land on them, we can just call the helper with the player moved one spot over
-  and one less spot to go*)
-
-let print_endline_prompt s = print_endline s
-
 let rec family_stop_op game =
-  print_endline_prompt
+  print_endline
     "Choose whether or not you want to have/adopt a child with either yes or \
      no.";
   print_endline
@@ -562,6 +482,89 @@ let rec married_stop_op game =
         {|That command was malformed, try "choose no" or something like that |};
       married_stop_op game
 
+let landed_spot_operations g =
+  (*all functions should return updated game.t*)
+  match g.current_player.position with
+  | Start _ -> failwith "unimplemented"
+  | Retire _ ->
+      move_player_to_retired g
+      (*function to take player out of game so they can wait for other players
+        to finish*)
+  | Payday _ -> land_on_payday g (*funtion to pay players their bonus salary*)
+  | Action _ -> failwith "unimplemented" (*function to draw action card*)
+  | MarriedStop { next } ->
+      failwith "unimplemented" (*function to perform stop choice*)
+  | FamilyStop { next } ->
+      failwith "unimplemented" (*function to perform stop choice*)
+  | CrisisStop { next } ->
+      failwith "unimplemented" (*function to perform stop choice*)
+  | GraduationStop { next } ->
+      graduation_stop_operation g |> switch_active_player
+      (* function to perform stop choice and check if you graduated *)
+  | House _ ->
+      failwith "unimplemented"
+      (*function to draw a house card ask if player wants to buy, and *)
+  | Friend _ ->
+      add_pegs g 1
+      |> switch_active_player (*function to perform add peg choice*)
+  | Pet _ ->
+      add_pegs g 1
+      |> switch_active_player (*function to perform add peg choice*)
+  | Baby _ ->
+      add_pegs g 1
+      |> switch_active_player (*function to perform add peg choice*)
+  | Twins _ ->
+      add_pegs g 2
+      |> switch_active_player (*function to perform add peg choice*)
+  | Career _ -> failwith "unimplemented" (*function to draw career card*)
+
+let rec move_helper g spin_number =
+  match spin_number with
+  | 0 -> landed_spot_operations g
+  | _ ->
+      let moved_player = move_player_spot g.current_player in
+      let game_with_player_moved =
+        {
+          current_player = moved_player;
+          active_players = moved_player :: List.tl g.active_players;
+          retired_players = g.retired_players;
+          game_board = g.game_board;
+        }
+      in
+      passed_spot_operations game_with_player_moved spin_number
+
+and passed_spot_operations g spin_number =
+  (* all branches sh ould call move helper again except retire. For example at a
+     payday, pay out the bonus salary, then call move helper with one less spin.
+     At a stop prompt and get the choice, then perform any necessary actions and
+     prompt for player to spin again, calling move helper with that new spin
+     number. We can use the same retire function whether you land on it or pass
+     it. *)
+  match g.current_player.position with
+  | Retire _ ->
+      move_player_to_retired g
+  | Payday _ ->
+      let g = pass_a_payday g in
+      move_helper g (spin_number - 1)
+  
+  | MarriedStop { next } ->
+      let g = married_stop_op g in
+      move_helper g (spin_number - 1)
+      
+  | FamilyStop { next } ->
+      let g = family_stop_op g in
+      move_helper g (spin_number - 1)
+  | CrisisStop { next } ->
+      failwith "unimplemented" (*function to perform stop choice*)
+  | GraduationStop { next } ->
+      let g = graduation_stop_operation g in
+      move_helper g (spin_number - 1)
+      
+  | _ -> move_helper g (spin_number - 1)
+(*Since you dont do anything when you pass the rest of the spots,only when you
+  land on them, we can just call the helper with the player moved one spot over
+  and one less spot to go*)
+
 let move_current_player g i = move_helper g i
 
 let end_game g =
@@ -607,7 +610,12 @@ let first_turn_spin players =
         | _ -> prompt_players p assoc_spun_lst)
   in
   let current_player, active_players = prompt_players players [] in
-  { current_player; active_players; retired_players = []; game_board = [] }
+  {
+    current_player;
+    active_players;
+    retired_players = [];
+    game_board = board_spot_list;
+  }
 
 let active_players g = g.active_players
 let current_player g = g.current_player

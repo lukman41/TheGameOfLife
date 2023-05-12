@@ -947,11 +947,7 @@ let rec married_stop_op game =
 let rec landed_house_op game =
   try
     match Command.parse (read_line ()) with
-    | Draw -> (
-        function
-        | h :: t ->
-            if h <> "draw" && List.length t <> 0 then raise Malformed
-            else
+    | Draw  -> (
               let house_card = Cards.draw_card house_cards in
               print_endline ("Name: " ^ house_card.name);
               print_endline ("Price: " ^ string_of_int house_card.price);
@@ -969,8 +965,8 @@ let rec landed_house_op game =
                   sell_odd = house_card.odd_amount;
                 }
               in
-              buy_house_op house game
-        | _ -> raise Malformed)
+              buy_house_op house game)
+        
     | Quit -> exit 0
     | Spin ->
         ANSITerminal.print_string [ ANSITerminal.red ]
@@ -1023,8 +1019,8 @@ let landed_spot_operations g =
   | GraduationStop { next } ->
       graduation_stop_operation g |> switch_active_player
       (* function to perform stop choice and check if you graduated *)
-  | House _ ->
-      failwith "unimplemented"
+  | House _ -> 
+      landed_house_op g |> switch_active_player
       (*function to draw a house card ask if player wants to buy, and *)
   | Friend _ ->
       add_pegs g 1

@@ -24,7 +24,7 @@ type spot =
   | Twins of { next : spot option }
   | Career of { next : spot option }
 
-val set_player_career : bool -> career option
+val set_player_career : bool -> string -> career option
 (** [set_player_career b] returns whether the player's starting career will be
     based on if they chose to go college (None) or not (a career that dosent
     require a degree)*)

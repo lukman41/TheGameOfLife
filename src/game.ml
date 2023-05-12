@@ -2,39 +2,26 @@
 open ANSITerminal
 
 type spot =
-  | Start of { next : spot }
-  | Retire of { next : spot }
-  | Payday of { next : spot }
-  | Action of { next : spot }
+  | Start of { next : spot option }
+  | Retire of { next : spot option }
+  | Payday of { next : spot option }
+  | Action of { next : spot option }
   | MarriedStop of {
-      prompt : string;
-      next : spot;
+      next : spot option;
           (*two options on which path to take, when a path is chosen, you could
             set players current spot to married_spot with the next being one of
             the choices from the tuple*)
     }
-  | FamilyStop of {
-      prompt : string;
-      next : spot;
-    }
-  | CrisisStop of {
-      prompt : string;
-      next : spot;
-    }
-  | RetireEarlyStop of {
-      prompt : string;
-      next : spot;
-    }
-  | GraduationStop of {
-      prompt : string;
-      next : spot;
-    }
-  | House of { next : spot }
-  | Friend of { next : spot }
-  | Pet of { next : spot }
-  | Baby of { next : spot }
-  | Twins of { next : spot }
-  | Career of { next : spot }
+  | FamilyStop of { next : spot option }
+  | CrisisStop of { next : spot option }
+  | RetireEarlyStop of { next : spot option }
+  | GraduationStop of { next : spot option }
+  | House of { next : spot option }
+  | Friend of { next : spot option }
+  | Pet of { next : spot option }
+  | Baby of { next : spot option }
+  | Twins of { next : spot option }
+  | Career of { next : spot option }
 
 type board = spot list
 
@@ -72,12 +59,12 @@ let set_player_career = function
   | true -> None
   | false -> failwith "function to draw career cards"
 
-let make_player name choice =
+let make_player name choice pos =
   {
     name;
     career = set_player_career choice;
     money = 250000;
-    position = failwith "todo";
+    position = pos;
     houses = [];
     pegs = 0;
     has_degree = false;
@@ -118,11 +105,11 @@ let get_next_position pos =
   | Retire { next } -> failwith "tried to move from retire spot"
   | Payday { next } -> next
   | Action { next } -> next
-  | MarriedStop { prompt; next } -> next
-  | FamilyStop { prompt; next } -> next
-  | CrisisStop { prompt; next } -> next
-  | RetireEarlyStop { prompt; next } -> next
-  | GraduationStop { prompt; next } -> next
+  | MarriedStop { next } -> next
+  | FamilyStop { next } -> next
+  | CrisisStop { next } -> next
+  | RetireEarlyStop { next } -> next
+  | GraduationStop { next } -> next
   | House { next } -> next
   | Friend { next } -> next
   | Pet { next } -> next
@@ -135,7 +122,7 @@ let move_player_spot p =
     name = p.name;
     money = p.money;
     career = p.career;
-    position = get_next_position p.position;
+    position = Option.get (get_next_position p.position);
     houses = p.houses;
     pegs = p.pegs;
     has_degree = p.has_degree;
@@ -152,15 +139,15 @@ let landed_spot_operations g =
   | Payday _ ->
       failwith "unimplemented" (*funtion to pay players their bonus salary*)
   | Action _ -> failwith "unimplemented" (*function to draw action card*)
-  | MarriedStop { prompt; next } ->
+  | MarriedStop { next } ->
       failwith "unimplemented" (*function to perform stop choice*)
-  | FamilyStop { prompt; next } ->
+  | FamilyStop { next } ->
       failwith "unimplemented" (*function to perform stop choice*)
-  | CrisisStop { prompt; next } ->
+  | CrisisStop { next } ->
       failwith "unimplemented" (*function to perform stop choice*)
-  | RetireEarlyStop { prompt; next } ->
+  | RetireEarlyStop { next } ->
       failwith "unimplemented" (*function to perform stop choice*)
-  | GraduationStop { prompt; next } ->
+  | GraduationStop { next } ->
       failwith "unimplemented"
       (* function to perform stop choice and check if you graduated *)
   | House _ ->
@@ -201,15 +188,15 @@ and passed_spot_operations g spin_number =
         to finish*)
   | Payday _ ->
       failwith "unimplemented" (*function to pay players their bonus salary*)
-  | MarriedStop { prompt; next } ->
+  | MarriedStop { next } ->
       failwith "unimplemented" (*function to perform stop choice*)
-  | FamilyStop { prompt; next } ->
+  | FamilyStop { next } ->
       failwith "unimplemente" (*function to perform stop choice*)
-  | CrisisStop { prompt; next } ->
+  | CrisisStop { next } ->
       failwith "unimplemented" (*function to perform stop choice*)
-  | RetireEarlyStop { prompt; next } ->
+  | RetireEarlyStop { next } ->
       failwith "unimplemented" (*function to perform stop choice*)
-  | GraduationStop { prompt; next } ->
+  | GraduationStop { next } ->
       failwith "unimplemented"
       (* function to perform stop and check if you graduated *)
   | _ -> move_helper g (spin_number - 1)

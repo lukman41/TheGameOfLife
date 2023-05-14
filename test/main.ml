@@ -141,8 +141,6 @@ let parsing_test =
     parse_test "parsing choose with spaces" " choose no" (Choose [ "no" ]);
     parse_test "parsing choose with spaces on yes" " choose             yes"
       (Choose [ "yes" ]);
-    parse_test "parsing choose with spaces on yes" " choose             yes"
-      (Choose [ "yes" ]);
     parse_test_empty_exn "parsing choose with empty string" "choose";
     parse_test_malformed_exn "parsing choose with malformed string" "chse";
     parse_test_empty_exn "parsing change with empty string" "change";

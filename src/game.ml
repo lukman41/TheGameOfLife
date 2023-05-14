@@ -1,3 +1,5 @@
+(** Handling of Game logic *)
+
 open Yojson.Basic.Util
 open ANSITerminal
 open Command

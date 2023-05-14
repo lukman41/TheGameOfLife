@@ -88,3 +88,7 @@ val make_spot : string -> spot -> spot
 val prompt_for_spin : t -> int
 (** [prompt_for_spin g] takes in a game g and prompts the current player to spin
     and returns the result*)
+
+val set_player_money : bool -> int
+(** [set_player_money c] takes in a choice and returns the amount of money the
+    player will start with*)

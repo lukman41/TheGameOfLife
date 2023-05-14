@@ -24,16 +24,21 @@ let pp_list pp_elt lst =
   "[" ^ pp_elts lst ^ "]"
 
 let spin_test (name : string) (expected_output : int) : test =
-  name >:: fun _ ->
-  assert_equal expected_output (spin)
+  name >:: fun _ -> assert_equal expected_output spin
 
 let spin_test (name : string) (expected_output : int) : test =
-  name >:: fun _ ->
-  assert_equal expected_output (spin)
+  name >:: fun _ -> assert_equal expected_output spin
 
-let game_tests = [
-  spin_test;
+let set_player_money_test (name : string) (input : bool) (expected_output : int)
+    : test =
+  name >:: fun _ -> assert_equal expected_output (Game.set_player_money input)
+
+let set_player_money_tests =
+  [
+    set_player_money_test "going to college is true" true 150000;
+    set_player_money_test "going to college is false" false 250000;
   ]
 
-let suite = "test suite for Game of Life" >::: List.flatten []
+let game_tests = [ set_player_money_tests ]
+let suite = "test suite for Game of Life" >::: List.flatten game_tests
 let _ = run_test_tt_main suite

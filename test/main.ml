@@ -5,6 +5,27 @@ open Command
 open Cards
 open Yojson.Basic.Util
 
+let career1 : career =
+  {
+    name = "Software Engineer";
+    salary = 250000;
+    bonus_salary = 100000;
+    requires_degree = false;
+  }
+
+let actionspot : spot = Action { next = None }
+
+let player1 =
+  {
+    name = "David";
+    money = 150000;
+    career = Some career1;
+    position = actionspot;
+    houses = [];
+    pegs = 1;
+    has_degree = true;
+  }
+
 (** [pp_string s] pretty-prints string [s]. *)
 let pp_string s = "\"" ^ s ^ "\""
 

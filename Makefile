@@ -25,3 +25,7 @@ doc:
 
 opendoc: doc
 	@bash opendoc.sh
+
+
+test:
+	OCAMLRUNPARAM=b dune exec test/main.exe

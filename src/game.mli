@@ -19,8 +19,8 @@ type spot =
   | Twins of { next : spot option }
   | Career of { next : spot option }
 
+type board = spot list
 
-  type  board =  spot list
 type career = {
   name : string;
   salary : int;
@@ -120,3 +120,7 @@ val prompt_for_spin : t -> int
 val set_player_money : bool -> int
 (** [set_player_money c] takes in a choice and returns the amount of money the
     player will start with*)
+
+val add_pegs : t -> int -> t
+(**[add_pegs g a] takes in a game and returns a new game state with the
+   current_player having i more pegs added *)

@@ -63,6 +63,12 @@ let parse_test (name : string) (input : string) (expected_output : command) :
     test =
   name >:: fun _ -> assert_equal expected_output (Command.parse input)
 
+let parse_test_empty_exn (name : string) (input : string) : test =
+  name >:: fun _ -> assert_raises Empty (fun () -> Command.parse input)
+
+let parse_test_malformed_exn (name : string) (input : string) : test =
+  name >:: fun _ -> assert_raises Malformed (fun () -> Command.parse input)
+
 let set_player_money_tests =
   [
     set_player_money_test "going to college is true" true 150000;
@@ -75,6 +81,12 @@ let parsing_test =
     parse_test "parsing quit" "quit" Quit;
     parse_test "parsing draw" "draw" Draw;
     parse_test "parsing start" "start" Start;
+    parse_test "parsing choose" "choose yes" (Choose [ "yes" ]);
+    parse_test "parsing choose" "choose no" (Choose [ "no" ]);
+    parse_test "parsing change" "change house" (Change [ "house" ]);
+    parse_test "parsing change" "change career" (Change [ "career" ]);
+    parse_test_empty_exn "empty string" "";
+    parse_test_malformed_exn "typo" "chnge career";
   ]
 
 let game_tests = [ set_player_money_tests; parsing_test ]

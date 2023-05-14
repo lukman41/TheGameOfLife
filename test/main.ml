@@ -63,8 +63,15 @@ let pp_list pp_elt lst =
   in
   "[" ^ pp_elts lst ^ "]"
 
+<<<<<<< Updated upstream
 let spin_test (name : string) (expected_output : int) : test =
   name >:: fun _ -> assert_equal expected_output spin
+=======
+let spin_test (name : string) (expected_output_min : int)
+    (expected_output_max : int) : test =
+  name >:: fun _ ->
+  assert_equal true (expected_output_min <= spin && expected_output_max >= spin)
+>>>>>>> Stashed changes
 
 let set_player_money_test (name : string) (input : bool) (expected_output : int)
     : test =
@@ -96,6 +103,7 @@ let parsing_test =
     parse_test "parsing quit" "quit" Quit;
     parse_test "parsing draw" "draw" Draw;
     parse_test "parsing start" "start" Start;
+<<<<<<< Updated upstream
     parse_test "parsing choose" "choose yes" (Choose [ "yes" ]);
     parse_test "parsing choose" "choose no" (Choose [ "no" ]);
     parse_test "parsing choose with spaces" " choose no" (Choose [ "no" ]);
@@ -110,6 +118,20 @@ let player_name_tests =
   [
     player_name_test "test for david" player1 "David";
     player_name_test "test for Darielis" darielis "Darielis";
+=======
+    spin_test "spin test 1" 1 4;
+    spin_test "spin test 2" 1 4;
+    spin_test "spin test 3" 1 4;
+    spin_test "spin test 4" 1 4;
+    spin_test "spin test 5" 1 4;
+    spin_test "spin test 6" 1 4;
+    spin_test "spin test 7" 1 4;
+    spin_test "spin test 8" 1 4;
+    spin_test "spin test 9" 1 4;
+    spin_test "spin test 10" 1 4;
+    spin_test "spin test 11" 1 4;
+    spin_test "spin test 12" 1 4;
+>>>>>>> Stashed changes
   ]
 
 let game_tests = [ set_player_money_tests; parsing_test ]

@@ -37,6 +37,17 @@ let add1player1 =
     has_degree = true;
   }
 
+let darielis =
+  {
+    name = "Darielis";
+    money = 150000;
+    career = Some career1;
+    position = actionspot;
+    houses = [];
+    pegs = 2;
+    has_degree = true;
+  }
+
 let add2player1 =
   {
     name = "Miah";
@@ -74,11 +85,10 @@ let pp_list pp_elt lst =
   in
   "[" ^ pp_elts lst ^ "]"
 
-let spin_test (name : string) (expected_output : int) : test =
-  name >:: fun _ -> assert_equal expected_output spin
-
-let spin_test (name : string) (expected_output : int) : test =
-  name >:: fun _ -> assert_equal expected_output spin
+let spin_test (name : string) (expected_output_min : int)
+    (expected_output_max : int) : test =
+  name >:: fun _ ->
+  assert_equal true (expected_output_min <= spin && expected_output_max >= spin)
 
 let set_player_money_test (name : string) (input : bool) (expected_output : int)
     : test =
@@ -104,6 +114,16 @@ let current_player_name_test (name : string) input (expected_output : string) :
 let add_peg_test (name : string) input amount expected_output : test =
   name >:: fun _ -> assert_equal expected_output (Game.add_pegs input amount)
 
+let parse_test_empty_exn (name : string) (input : string) : test =
+  name >:: fun _ -> assert_raises Empty (fun () -> Command.parse input)
+
+let parse_test_malformed_exn (name : string) (input : string) : test =
+  name >:: fun _ -> assert_raises Malformed (fun () -> Command.parse input)
+
+let player_name_test (name : string) (input : player) (expected_output : string)
+    : test =
+  name >:: fun _ -> assert_equal expected_output (Game.player_name input)
+
 let set_player_money_tests =
   [
     set_player_money_test "going to college is true" true 150000;
@@ -116,6 +136,33 @@ let parsing_test =
     parse_test "parsing quit" "quit" Quit;
     parse_test "parsing draw" "draw" Draw;
     parse_test "parsing start" "start" Start;
+    parse_test "parsing choose" "choose yes" (Choose [ "yes" ]);
+    parse_test "parsing choose" "choose no" (Choose [ "no" ]);
+    parse_test "parsing choose with spaces" " choose no" (Choose [ "no" ]);
+    parse_test "parsing choose with spaces on yes" " choose             yes"
+      (Choose [ "yes" ]);
+    parse_test "parsing change" "change house" (Change [ "house" ]);
+    parse_test "parsing change" "change career" (Change [ "career" ]);
+    parse_test_empty_exn "empty string" "";
+    parse_test_malformed_exn "typo" "chnge career";
+  ]
+
+let player_name_tests =
+  [
+    player_name_test "test for david" player1 "David";
+    player_name_test "test for Darielis" darielis "Darielis";
+    spin_test "spin test 1" 1 4;
+    spin_test "spin test 2" 1 4;
+    spin_test "spin test 3" 1 4;
+    spin_test "spin test 4" 1 4;
+    spin_test "spin test 5" 1 4;
+    spin_test "spin test 6" 1 4;
+    spin_test "spin test 7" 1 4;
+    spin_test "spin test 8" 1 4;
+    spin_test "spin test 9" 1 4;
+    spin_test "spin test 10" 1 4;
+    spin_test "spin test 11" 1 4;
+    spin_test "spin test 12" 1 4;
   ]
 
 let active_player_tests =

@@ -1364,11 +1364,11 @@ let end_game g =
   check_max lst_players 0 (List.hd lst_players)
 
 let find_max players assoc_lst =
-  let players =
-    List.sort (fun x y -> max (snd x) (snd y)) assoc_lst
+  let new_players =
+    List.sort (fun x y -> if snd x < snd y then 1 else -1) assoc_lst
     |> List.map (fun x -> fst x)
   in
-  (List.hd players, players)
+  (List.hd new_players, new_players)
 
 let rec string_player_order acc num = function
   | [] -> ANSITerminal.print_string [ ANSITerminal.green ] (acc ^ ".")

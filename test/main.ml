@@ -5,5 +5,5 @@ open Command
 open Cards
 open Board
 
-
-let
+let suite = "test suite for Game of Life" >::: List.flatten []
+let _ = run_test_tt_main suite

@@ -55,9 +55,6 @@ let pp_list pp_elt lst =
 let spin_test (name : string) (expected_output : int) : test =
   name >:: fun _ -> assert_equal expected_output spin
 
-let spin_test (name : string) (expected_output : int) : test =
-  name >:: fun _ -> assert_equal expected_output spin
-
 let set_player_money_test (name : string) (input : bool) (expected_output : int)
     : test =
   name >:: fun _ -> assert_equal expected_output (Game.set_player_money input)

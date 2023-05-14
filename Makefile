@@ -19,3 +19,9 @@ zip:
 clean:
 	dune clean
 	rm -f fourLifers.zip
+
+doc:
+	dune build @doc
+
+opendoc: doc
+	@bash opendoc.sh

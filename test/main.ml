@@ -155,6 +155,8 @@ let player_name_tests =
   [
     player_name_test "test for Miah" player1 "Miah";
     player_name_test "test for Darielis" darielis "Darielis";
+    player_name_test "test for Miah in add1player1" add1player1 "Miah";
+    player_name_test "test for Miah in add2player1" add2player1 "Miah";
   ]
 
 let spin_tests =

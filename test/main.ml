@@ -155,8 +155,12 @@ let parsing_test =
 
 let player_name_tests =
   [
-    player_name_test "test for david" player1 "David";
+    player_name_test "test for Miah" player1 "Miah";
     player_name_test "test for Darielis" darielis "Darielis";
+  ]
+
+let spin_tests =
+  [
     spin_test "spin test 1" 1 4;
     spin_test "spin test 2" 1 4;
     spin_test "spin test 3" 1 4;
@@ -209,6 +213,8 @@ let game_tests =
   [
     set_player_money_tests;
     parsing_test;
+    player_name_tests;
+    spin_tests;
     active_player_tests;
     current_player_tests;
     current_player_name_tests;

@@ -1,5 +1,3 @@
-(** Handling of Game logic *)
-
 open Yojson.Basic.Util
 open ANSITerminal
 open Command
@@ -287,7 +285,7 @@ let rec prompt_for_spin g =
     | Spin ->
         let player_spin =
           Random.self_init ();
-          let r = Random.int 4 in
+          let r = Random.int 10 in
           r + 1
         in
         ANSITerminal.print_string [ ANSITerminal.green ]
@@ -503,7 +501,7 @@ let player_payday game salary =
 
 let spin =
   Random.self_init ();
-  let r = Random.int 4 in
+  let r = Random.int 10 in
   r + 1
 
 let get_next_position pos =
@@ -538,6 +536,7 @@ let move_player_to_retired game =
   let new_list_players =
     List.filter (fun x -> x <> game.current_player) game.active_players
   in
+  print_endline (game.current_player.name ^ "has retired.");
   let new_relist_players = [ game.current_player ] in
   {
     current_player = List.hd new_list_players;
@@ -702,7 +701,7 @@ let rec family_stop_op game =
       family_stop_op game
 
 let rec spin_action_card () : int =
-  print_endline {|Type "spin" to draw an action card: |};
+  print_endline {|Type "draw" to draw an action card: |};
   try
     match Command.parse (read_line ()) with
     | Spin -> spin
@@ -1161,8 +1160,7 @@ let rec buy_house_op house game =
       buy_house_op house game
 
 let rec landed_house_op game =
-  print_endline
-    "You have landed on a house spot! To draw a house card, type 'draw'";
+  print_endline ("You have landed on a house spot! To draw a house card, type 'draw'.");
   try
     match Command.parse (read_line ()) with
     | Draw ->
@@ -1364,11 +1362,11 @@ let end_game g =
   check_max lst_players 0 (List.hd lst_players)
 
 let find_max players assoc_lst =
-  let new_players =
-    List.sort (fun x y -> if snd x < snd y then 1 else -1) assoc_lst
+  let players =
+    List.sort (fun x y -> max (snd x) (snd y)) assoc_lst
     |> List.map (fun x -> fst x)
   in
-  (List.hd new_players, new_players)
+  (List.hd players, players)
 
 let rec string_player_order acc num = function
   | [] -> ANSITerminal.print_string [ ANSITerminal.green ] (acc ^ ".")
@@ -1395,7 +1393,7 @@ let first_turn_spin players =
         | "spin" ->
             let player_spin =
               Random.self_init ();
-              let r = Random.int 4 in
+              let r = Random.int 10 in
               r + 1
             in
             ANSITerminal.print_string [ ANSITerminal.green ]

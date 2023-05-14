@@ -124,3 +124,7 @@ val set_player_money : bool -> int
 val add_pegs : t -> int -> t
 (**[add_pegs g a] takes in a game and returns a new game state with the
    current_player having i more pegs added *)
+
+val find_max : 'a -> ('b * 'c )list -> 'b * 'b list
+(**[find_max p a] takes in [a], an association list for the players and the
+   number spun, and returns the updated order based on who gets the highest spin*)

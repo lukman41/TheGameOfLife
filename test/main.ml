@@ -99,6 +99,11 @@ let parse_test (name : string) (input : string) (expected_output : command) :
     test =
   name >:: fun _ -> assert_equal expected_output (Command.parse input)
 
+let find_max_test (name : string) (player : 'a) assoc_list
+    (expected_output : 'b * 'b list) : test =
+  name >:: fun _ ->
+  assert_equal expected_output (Game.find_max player assoc_list)
+
 let active_players_test (name : string) input (expected_output : player list) :
     test =
   name >:: fun _ -> assert_equal expected_output (Game.active_players input)
@@ -218,6 +223,26 @@ let get_next_position_tests =
     get_next_position_test "next is Action" before_action (Some actionspot);
   ]
 
+let find_max_tests =
+  [
+    find_max_test "one player" 1 [ (1, 2) ] (1, [ 1 ]);
+    find_max_test "two players" 1 [ (1, 2); (2, 3) ] (2, [ 2; 1 ]);
+    find_max_test "three players" 1 [ (1, 2); (2, 3); (3, 4) ] (3, [ 3; 2; 1 ]);
+    find_max_test "four players" 1
+      [ (1, 1); (2, 2); (3, 3); (4, 4) ]
+      (4, [ 4; 3; 2; 1 ]);
+    find_max_test "two players have same spin" 1 [ (1, 2); (2, 2) ] (1, [ 1; 2 ]);
+    find_max_test "three players have same spin" 1
+      [ (1, 2); (2, 2); (3, 2) ]
+      (1, [ 1; 2; 3 ]);
+    find_max_test "three players, two have same spin" 1
+      [ (1, 2); (2, 3); (3, 3) ]
+      (2, [ 2; 3; 1 ]);
+    find_max_test "four players, two pairs have same spin" 1
+      [ (1, 1); (2, 2); (3, 2); (4, 1) ]
+      (2, [ 2; 3; 1; 4 ]);
+  ]
+
 let game_tests =
   [
     set_player_money_tests;
@@ -228,6 +253,7 @@ let game_tests =
     current_player_tests;
     add_peg_tests;
     get_next_position_tests;
+    find_max_tests;
   ]
 
 let suite = "test suite for Game of Life" >::: List.flatten game_tests

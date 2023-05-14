@@ -83,6 +83,8 @@ let parsing_test =
     parse_test "parsing start" "start" Start;
     parse_test "parsing choose" "choose yes" (Choose [ "yes" ]);
     parse_test "parsing choose" "choose no" (Choose [ "no" ]);
+    parse_test "parsing choose with spaces" " choose no" (Choose [ "no" ]);
+    parse_test "parsing choose with spaces on yes" " choose             yes" (Choose [ "yes" ]);
     parse_test "parsing change" "change house" (Change [ "house" ]);
     parse_test "parsing change" "change career" (Change [ "career" ]);
     parse_test_empty_exn "empty string" "";

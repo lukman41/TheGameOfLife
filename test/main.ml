@@ -26,6 +26,17 @@ let player1 =
     has_degree = true;
   }
 
+let darielis =
+  {
+    name = "Darielis";
+    money = 150000;
+    career = Some career1;
+    position = actionspot;
+    houses = [];
+    pegs = 1;
+    has_degree = true;
+  }
+
 let game1 =
   {
     current_player = player1;
@@ -69,6 +80,10 @@ let parse_test_empty_exn (name : string) (input : string) : test =
 let parse_test_malformed_exn (name : string) (input : string) : test =
   name >:: fun _ -> assert_raises Malformed (fun () -> Command.parse input)
 
+let player_name_test (name : string) (input : player) (expected_output : string)
+    : test =
+  name >:: fun _ -> assert_equal expected_output (Game.player_name input)
+
 let set_player_money_tests =
   [
     set_player_money_test "going to college is true" true 150000;
@@ -89,6 +104,12 @@ let parsing_test =
     parse_test "parsing change" "change career" (Change [ "career" ]);
     parse_test_empty_exn "empty string" "";
     parse_test_malformed_exn "typo" "chnge career";
+  ]
+
+let player_name_tests =
+  [
+    player_name_test "test for david" player1 "David";
+    player_name_test "test for Darielis" darielis "Darielis";
   ]
 
 let game_tests = [ set_player_money_tests; parsing_test ]

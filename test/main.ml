@@ -17,12 +17,23 @@ let actionspot : spot = Action { next = None }
 
 let player1 =
   {
-    name = "David";
+    name = "Miah";
     money = 150000;
     career = Some career1;
     position = actionspot;
     houses = [];
     pegs = 1;
+    has_degree = true;
+  }
+
+let add1player1 =
+  {
+    name = "Miah";
+    money = 150000;
+    career = Some career1;
+    position = actionspot;
+    houses = [];
+    pegs = 2;
     has_degree = true;
   }
 
@@ -33,7 +44,18 @@ let darielis =
     career = Some career1;
     position = actionspot;
     houses = [];
-    pegs = 1;
+    pegs = 2;
+    has_degree = true;
+  }
+
+let add2player1 =
+  {
+    name = "Miah";
+    money = 150000;
+    career = Some career1;
+    position = actionspot;
+    houses = [];
+    pegs = 3;
     has_degree = true;
   }
 
@@ -76,6 +98,22 @@ let parse_test (name : string) (input : string) (expected_output : command) :
     test =
   name >:: fun _ -> assert_equal expected_output (Command.parse input)
 
+let active_players_test (name : string) input (expected_output : player list) :
+    test =
+  name >:: fun _ -> assert_equal expected_output (Game.active_players input)
+
+let current_player_test (name : string) input (expected_output : player) : test
+    =
+  name >:: fun _ -> assert_equal expected_output (Game.current_player input)
+
+let current_player_name_test (name : string) input (expected_output : string) :
+    test =
+  name >:: fun _ ->
+  assert_equal expected_output (Game.current_player_name input)
+
+let add_peg_test (name : string) input amount expected_output : test =
+  name >:: fun _ -> assert_equal expected_output (Game.add_pegs input amount)
+
 let parse_test_empty_exn (name : string) (input : string) : test =
   name >:: fun _ -> assert_raises Empty (fun () -> Command.parse input)
 
@@ -101,7 +139,14 @@ let parsing_test =
     parse_test "parsing choose" "choose yes" (Choose [ "yes" ]);
     parse_test "parsing choose" "choose no" (Choose [ "no" ]);
     parse_test "parsing choose with spaces" " choose no" (Choose [ "no" ]);
-    parse_test "parsing choose with spaces on yes" " choose             yes" (Choose [ "yes" ]);
+    parse_test "parsing choose with spaces on yes" " choose             yes"
+      (Choose [ "yes" ]);
+    parse_test "parsing choose with spaces on yes" " choose             yes"
+      (Choose [ "yes" ]);
+    parse_test_empty_exn "parsing choose with empty string" "choose";
+    parse_test_malformed_exn "parsing choose with malformed string" "chse";
+    parse_test_empty_exn "parsing change with empty string" "change";
+    parse_test_malformed_exn "parsing change with malformed string" "chnge";
     parse_test "parsing change" "change house" (Change [ "house" ]);
     parse_test "parsing change" "change career" (Change [ "career" ]);
     parse_test_empty_exn "empty string" "";
@@ -112,8 +157,63 @@ let player_name_tests =
   [
     player_name_test "test for david" player1 "David";
     player_name_test "test for Darielis" darielis "Darielis";
+    spin_test "spin test 1" 1 4;
+    spin_test "spin test 2" 1 4;
+    spin_test "spin test 3" 1 4;
+    spin_test "spin test 4" 1 4;
+    spin_test "spin test 5" 1 4;
+    spin_test "spin test 6" 1 4;
+    spin_test "spin test 7" 1 4;
+    spin_test "spin test 8" 1 4;
+    spin_test "spin test 9" 1 4;
+    spin_test "spin test 10" 1 4;
+    spin_test "spin test 11" 1 4;
+    spin_test "spin test 12" 1 4;
   ]
 
-let game_tests = [ set_player_money_tests; parsing_test ]
+let active_player_tests =
+  [ active_players_test "Check active players list" game1 [ player1 ] ]
+
+let current_player_tests =
+  [ current_player_test "Check current player" game1 player1 ]
+
+let current_player_name_tests =
+  [ current_player_name_test "Check current player's name" player1 "Miah" ]
+
+let add_peg_tests =
+  [
+    add_peg_test "Add no pegs" game1 0
+      {
+        current_player = player1;
+        active_players = [ player1 ];
+        retired_players = [];
+        game_board = [];
+      };
+    add_peg_test "Add 1 peg" game1 1
+      {
+        current_player = add1player1;
+        active_players = [ add1player1 ];
+        retired_players = [];
+        game_board = [];
+      };
+    add_peg_test "Add 2 pegs" game1 2
+      {
+        current_player = add2player1;
+        active_players = [ add2player1 ];
+        retired_players = [];
+        game_board = [];
+      };
+  ]
+
+let game_tests =
+  [
+    set_player_money_tests;
+    parsing_test;
+    active_player_tests;
+    current_player_tests;
+    current_player_name_tests;
+    add_peg_tests;
+  ]
+
 let suite = "test suite for Game of Life" >::: List.flatten game_tests
 let _ = run_test_tt_main suite

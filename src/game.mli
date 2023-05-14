@@ -1,8 +1,3 @@
-type career
-type player
-type t
-type board
-
 type spot =
   | Start of { next : spot option }
   | Retire of { next : spot option }
@@ -23,6 +18,39 @@ type spot =
   | Baby of { next : spot option }
   | Twins of { next : spot option }
   | Career of { next : spot option }
+
+
+  type  board =  spot list
+type career = {
+  name : string;
+  salary : int;
+  bonus_salary : int;
+  requires_degree : bool;
+}
+
+type house = {
+  name : string;
+  purchase_price : int;
+  sell_even : int;
+  sell_odd : int;
+}
+
+type player = {
+  name : string;
+  money : int;
+  career : career option;
+  position : spot;
+  houses : house list;
+  pegs : int;
+  has_degree : bool;
+}
+
+type t = {
+  current_player : player;
+  active_players : player list;
+  retired_players : player list;
+  game_board : board;
+}
 
 val set_player_career : bool -> string -> career option
 (** [set_player_career b] returns whether the player's starting career will be

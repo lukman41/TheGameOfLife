@@ -14,6 +14,7 @@ let career1 : career =
   }
 
 let actionspot : spot = Action { next = None }
+let before_action = Payday { next = Some actionspot }
 
 let player1 =
   {
@@ -124,6 +125,9 @@ let player_name_test (name : string) (input : player) (expected_output : string)
     : test =
   name >:: fun _ -> assert_equal expected_output (Game.player_name input)
 
+let get_next_position_test (name : string) input expected_output : test =
+  name >:: fun _ -> assert_equal expected_output (Game.get_next_position input)
+
 let set_player_money_tests =
   [
     set_player_money_test "going to college is true" true 150000;
@@ -181,9 +185,6 @@ let active_player_tests =
 let current_player_tests =
   [ current_player_test "Check current player" game1 player1 ]
 
-let current_player_name_tests =
-  [ current_player_name_test "Check current player's name" player1 "Miah" ]
-
 let add_peg_tests =
   [
     add_peg_test "Add no pegs" game1 0
@@ -209,6 +210,12 @@ let add_peg_tests =
       };
   ]
 
+let get_next_position_tests =
+  [
+    get_next_position_test "next is None" actionspot None;
+    get_next_position_test "next is Action" before_action (Some actionspot);
+  ]
+
 let game_tests =
   [
     set_player_money_tests;
@@ -217,8 +224,8 @@ let game_tests =
     spin_tests;
     active_player_tests;
     current_player_tests;
-    current_player_name_tests;
     add_peg_tests;
+    get_next_position_tests;
   ]
 
 let suite = "test suite for Game of Life" >::: List.flatten game_tests

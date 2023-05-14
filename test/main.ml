@@ -54,12 +54,25 @@ let set_player_money_test (name : string) (input : bool) (expected_output : int)
     : test =
   name >:: fun _ -> assert_equal expected_output (Game.set_player_money input)
 
+let parse_test (name : string) (input : string) (expected_output : command) :
+    test =
+  name >:: fun _ -> assert_equal expected_output (Command.parse input)
+
 let set_player_money_tests =
   [
     set_player_money_test "going to college is true" true 150000;
     set_player_money_test "going to college is false" false 250000;
+   
   ]
 
-let game_tests = [ set_player_money_tests ]
+let parsing_test =
+  [
+    parse_test "parsing spin" "spin" Spin;
+    parse_test "parsing quit" "quit" Quit;
+    parse_test "parsing draw" "draw" Draw;
+    parse_test "parsing start" "start" Start;
+  ]
+
+let game_tests = [ set_player_money_tests; parsing_test ]
 let suite = "test suite for Game of Life" >::: List.flatten game_tests
 let _ = run_test_tt_main suite

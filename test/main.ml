@@ -102,7 +102,7 @@ let parse_test (name : string) (input : string) (expected_output : command) :
 let find_max_test (name : string) (player : 'a) assoc_list
     (expected_output : 'b * 'b list) : test =
   name >:: fun _ ->
-  assert_equal expected_output (Game.find_max player assoc_list)
+  assert_equal expected_output (Game.find_max (player) assoc_list)
 
 let active_players_test (name : string) input (expected_output : player list) :
     test =

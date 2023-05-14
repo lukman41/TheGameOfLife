@@ -26,6 +26,14 @@ let player1 =
     has_degree = true;
   }
 
+let game1 =
+  {
+    current_player = player1;
+    active_players = [ player1 ];
+    retired_players = [];
+    game_board = [];
+  }
+
 (** [pp_string s] pretty-prints string [s]. *)
 let pp_string s = "\"" ^ s ^ "\""
 
@@ -62,7 +70,6 @@ let set_player_money_tests =
   [
     set_player_money_test "going to college is true" true 150000;
     set_player_money_test "going to college is false" false 250000;
-   
   ]
 
 let parsing_test =

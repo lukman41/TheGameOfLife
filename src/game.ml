@@ -287,7 +287,7 @@ let rec prompt_for_spin g =
     | Spin ->
         let player_spin =
           Random.self_init ();
-          let r = Random.int 10 in
+          let r = Random.int 4 in
           r + 1
         in
         ANSITerminal.print_string [ ANSITerminal.green ]
@@ -503,7 +503,7 @@ let player_payday game salary =
 
 let spin =
   Random.self_init ();
-  let r = Random.int 10 in
+  let r = Random.int 4 in
   r + 1
 
 let get_next_position pos =
@@ -1161,7 +1161,8 @@ let rec buy_house_op house game =
       buy_house_op house game
 
 let rec landed_house_op game =
-  print_endline ("You have landed on a house spot! To draw a house card, type 'draw'");
+  print_endline
+    "You have landed on a house spot! To draw a house card, type 'draw'";
   try
     match Command.parse (read_line ()) with
     | Draw ->
@@ -1394,7 +1395,7 @@ let first_turn_spin players =
         | "spin" ->
             let player_spin =
               Random.self_init ();
-              let r = Random.int 10 in
+              let r = Random.int 4 in
               r + 1
             in
             ANSITerminal.print_string [ ANSITerminal.green ]

@@ -1161,6 +1161,7 @@ let rec buy_house_op house game =
       buy_house_op house game
 
 let rec landed_house_op game =
+  print_endline ("You have landed on a house spot! To draw a house card, type 'draw'");
   try
     match Command.parse (read_line ()) with
     | Draw ->

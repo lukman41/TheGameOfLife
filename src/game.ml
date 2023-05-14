@@ -702,7 +702,7 @@ let rec family_stop_op game =
       family_stop_op game
 
 let rec spin_action_card () : int =
-  print_endline {|Type "draw" to draw an action card: |};
+  print_endline {|Type "spin" to draw an action card: |};
   try
     match Command.parse (read_line ()) with
     | Spin -> spin

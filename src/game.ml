@@ -251,14 +251,12 @@ module Board = struct
     match backward_board with
     | [] -> acc
     | h1 :: h2 :: t ->
-        print_endline h1;
         if h1 = "Retire" then
           make_board_helper (retire_spot :: acc) retire_spot (h2 :: t)
         else
           let new_spot = make_spot h1 prev in
           make_board_helper (new_spot :: acc) new_spot (h2 :: t)
     | h :: t ->
-        print_endline h;
         let new_spot = make_spot h prev in
         new_spot :: acc
 
@@ -473,7 +471,7 @@ let make_player name choice =
     money = set_player_money choice;
     position = Board.start_spot board_spot_list;
     houses = [];
-    pegs = 0;
+    pegs = 1;
     has_degree = false;
   }
 
@@ -534,18 +532,37 @@ let move_player_spot p =
     has_degree = p.has_degree;
   }
 
+let dummy_player =
+  {
+    name = "dummy";
+    money = 0;
+    career = None;
+    position = Start { next = None };
+    houses = [];
+    pegs = 1;
+    has_degree = false;
+  }
+
 let move_player_to_retired game =
   let new_list_players =
     List.filter (fun x -> x <> game.current_player) game.active_players
   in
-  print_endline (game.current_player.name ^ "has retired.");
+  print_endline (game.current_player.name ^ " has retired.");
   let new_relist_players = [ game.current_player ] in
-  {
-    current_player = List.hd new_list_players;
-    active_players = new_list_players;
-    retired_players = game.retired_players @ new_relist_players;
-    game_board = game.game_board;
-  }
+  if new_list_players = [] then
+    {
+      current_player = dummy_player;
+      active_players = new_list_players;
+      retired_players = game.retired_players @ new_relist_players;
+      game_board = game.game_board;
+    }
+  else
+    {
+      current_player = List.hd new_list_players;
+      active_players = new_list_players;
+      retired_players = game.retired_players @ new_relist_players;
+      game_board = game.game_board;
+    }
 
 let switch_active_player g =
   match g.active_players with
@@ -1043,6 +1060,8 @@ let rec sell_house_op (house : house) game =
     ^ string_of_int house.sell_odd);
   let spin = prompt_for_spin game in
   let even_odd = if spin mod 2 = 0 then house.sell_even else house.sell_odd in
+  print_endline ("Your house sold for " ^ string_of_int even_odd);
+
   let updated_player =
     {
       name = game.current_player.name;
@@ -1054,6 +1073,9 @@ let rec sell_house_op (house : house) game =
       has_degree = game.current_player.has_degree;
     }
   in
+  print_endline
+    (updated_player.name ^ " ,you now have "
+    ^ string_of_int updated_player.money);
   let updated_game =
     {
       current_player = updated_player;
@@ -1229,9 +1251,8 @@ let rec landed_house_op game =
 
 let rec crisis_stop_op g =
   print_endline
-    "You have reached a Crisis Stop! You're currently going through a \n\n\
-    \                mid-Life crisis, and you are considering making changes \
-     to your life.";
+    "You have reached a Crisis Stop! You're currently going through a mid-Life \
+     crisis, and you are considering making changes to your life.";
   print_endline
     "You are able to change your sell your house or change your career";
   print_endline {|To sell your house, type "change house"|};
@@ -1244,8 +1265,7 @@ let rec crisis_stop_op g =
           match i with
           | h :: t ->
               if h = "nothing" && List.length t = 0 then g
-              else if h = "career" && List.length t = 0 then (*career_stop_op*)
-                g
+              else if h = "career" && List.length t = 0 then career_stop_op g
               else if h = "house" && List.length t = 0 then landed_house_op g
               else raise Malformed
           | _ -> raise Malformed
@@ -1352,32 +1372,44 @@ and passed_spot_operations g spin_number =
      it. *)
   match g.current_player.position with
   | Retire _ ->
-      print_endline (g.current_player.name ^ ", you're passing a retire spot!");
-      move_player_to_retired g
+      if spin_number <> 1 then (
+        print_endline (g.current_player.name ^ ", you're passing a retire spot!");
+        move_player_to_retired g)
+      else move_helper g (spin_number - 1)
   | Payday _ ->
-      print_endline (g.current_player.name ^ ", you're passing a payday spot!");
-      let g = pass_a_payday g in
-      move_helper g (spin_number - 1)
+      if spin_number <> 1 then (
+        print_endline (g.current_player.name ^ ", you're passing a payday spot!");
+        let g = pass_a_payday g in
+        move_helper g (spin_number - 1))
+      else move_helper g (spin_number - 1)
   | MarriedStop { next } ->
-      print_endline
-        (g.current_player.name ^ ", you're passing a married stop spot!");
-      let g = married_stop_op g in
-      move_helper g (spin_number - 1)
+      if spin_number <> 1 then (
+        print_endline
+          (g.current_player.name ^ ", you're passing a married stop spot!");
+        let g = married_stop_op g in
+        move_helper g (spin_number - 1))
+      else move_helper g (spin_number - 1)
   | FamilyStop { next } ->
-      print_endline
-        (g.current_player.name ^ ", you're passing a family stop spot!");
-      let g = family_stop_op g in
-      move_helper g (spin_number - 1)
+      if spin_number <> 1 then (
+        print_endline
+          (g.current_player.name ^ ", you're passing a family stop spot!");
+        let g = family_stop_op g in
+        move_helper g (spin_number - 1))
+      else move_helper g (spin_number - 1)
   | CrisisStop { next } ->
-      print_endline
-        (g.current_player.name ^ ", you're passing a crisis stop spot!");
-      let g = crisis_stop_op g in
-      move_helper g (spin_number - 1)
+      if spin_number <> 1 then (
+        print_endline
+          (g.current_player.name ^ ", you're passing a crisis stop spot!");
+        let g = crisis_stop_op g in
+        move_helper g (spin_number - 1))
+      else move_helper g (spin_number - 1)
   | GraduationStop { next } ->
-      print_endline
-        (g.current_player.name ^ ", you're passing a graduation stop spot!");
-      let g = graduation_stop_operation g in
-      move_helper g (spin_number - 1)
+      if spin_number <> 1 then (
+        print_endline
+          (g.current_player.name ^ ", you're passing a graduation stop spot!");
+        let g = graduation_stop_operation g in
+        move_helper g (spin_number - 1))
+      else move_helper g (spin_number - 1)
   | _ -> move_helper g (spin_number - 1)
 (*Since you dont do anything when you pass the rest of the spots,only when you
   land on them, we can just call the helper with the player moved one spot over

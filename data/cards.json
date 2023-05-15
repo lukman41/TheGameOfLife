@@ -40,14 +40,21 @@
       "name": "Model",
       "salary": 40000,
       "bonus_salary": 80000,
-      "requires_degree" : false
+      "requires_degree": false
     },
     {
       "id": 2,
       "name": "Veterinarian",
       "salary": 70000,
       "bonus_salary": 110000,
-      "requires_degree" : true
+      "requires_degree": true
+    },
+    {
+      "id": 2,
+      "name": "Veterinarian",
+      "salary": 70000,
+      "bonus_salary": 110000,
+      "requires_degree": true
     }
   ]
 }

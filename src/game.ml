@@ -247,21 +247,23 @@ module Board = struct
      previous spot we just worked with in order to have next when making the
      current spot*)
   let rec make_board_helper acc prev string_board =
-    let backward_board = List.rev string_board in
+    let backward_board = string_board in
     match backward_board with
     | [] -> acc
     | h1 :: h2 :: t ->
+        print_endline h1;
         if h1 = "Retire" then
           make_board_helper (retire_spot :: acc) retire_spot (h2 :: t)
         else
           let new_spot = make_spot h1 prev in
           make_board_helper (new_spot :: acc) new_spot (h2 :: t)
     | h :: t ->
+        print_endline h;
         let new_spot = make_spot h prev in
         new_spot :: acc
 
   (**Makes the board with an empty accumulator *)
-  let make_board board = make_board_helper [] retire_spot board
+  let make_board board = make_board_helper [] retire_spot (List.rev board)
 
   (**Returns the start of the board *)
   let start_spot board = List.hd board

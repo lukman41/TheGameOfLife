@@ -624,6 +624,10 @@ let add_pegs g amt =
       game_board = g.game_board;
     }
   in
+  print_endline
+    (updated_game.current_player.name ^ "you have "
+    ^ string_of_int updated_game.current_player.pegs
+    ^ " pegs");
   updated_game
 
 let graduation_stop_operation g =
@@ -1272,7 +1276,10 @@ let landed_spot_operations g =
   | Payday _ ->
       land_on_payday g
       |> switch_active_player (*funtion to pay players their bonus salary*)
-  | Action _ -> draw_action_card Cards.action_cards g |> switch_active_player
+  | Action _ ->
+      print_endline
+        (g.current_player.name ^ ", you've landed on an action spot!");
+      draw_action_card Cards.action_cards g |> switch_active_player
   | MarriedStop { next } -> married_stop_op g |> switch_active_player
   | FamilyStop { next } -> family_stop_op g |> switch_active_player
   | CrisisStop { next } -> crisis_stop_op g |> switch_active_player
@@ -1294,7 +1301,8 @@ let landed_spot_operations g =
   | Twins _ ->
       add_pegs g 2
       |> switch_active_player (*function to perform add peg choice*)
-  | Career _ -> failwith "unimplemented" (*function to draw career card*)
+  | Career _ ->
+      career_stop_op g |> switch_active_player (*function to draw career card*)
 
 let rec move_helper g spin_number =
   match spin_number with

@@ -22,7 +22,7 @@ let rec play g =
 
 let rec number_of_players_prompt () =
   ANSITerminal.print_string [ ANSITerminal.blue ]
-    "Enter the number of players:  (Between 1 -4)";
+    "Enter the number of players:  (Between 2 -4)";
   print_newline ();
   ANSITerminal.print_string [ ANSITerminal.yellow ]
     {|To make a choice type "choose" before the number you want to enter|};
@@ -36,7 +36,7 @@ let rec number_of_players_prompt () =
     | Choose i -> (
         try
           match int_of_string (String.concat " " i) with
-          | 1 | 2 | 3 | 4 -> int_of_string (String.concat " " i)
+          | 2 | 3 | 4 -> int_of_string (String.concat " " i)
           | _ -> raise Malformed
         with Failure _ -> raise Malformed)
     | Quit -> exit 0

@@ -125,6 +125,18 @@ val add_pegs : t -> int -> t
 (**[add_pegs g a] takes in a game and returns a new game state with the
    current_player having i more pegs added *)
 
-val find_max : 'a -> ('b * 'c )list -> 'b * 'b list
+val find_max : 'a -> ('b * int) list -> 'b * 'b list
 (**[find_max p a] takes in [a], an association list for the players and the
    number spun, and returns the updated order based on who gets the highest spin*)
+
+val pass_a_payday : t -> t
+(**[pass_a_payday g] takes in a game and returns a new game state with the
+   current_player having received a paycheck*)
+
+val pay_current_player : t -> int -> t
+(**[pass_current_player g a] takes in a game and returns a new game state with
+   the current_player having received the bonus amount a *)
+
+val switch_active_player : t -> t
+(**[switch_active_player g] takes in a game and returns the game with the next
+   current player after switching turns*)

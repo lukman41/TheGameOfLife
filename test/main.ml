@@ -27,6 +27,28 @@ let player1 =
     has_degree = true;
   }
 
+let bonusplayer1 =
+  {
+    name = "Miah";
+    money = 250000;
+    career = Some career1;
+    position = actionspot;
+    houses = [];
+    pegs = 1;
+    has_degree = true;
+  }
+
+let minusplayer1 =
+  {
+    name = "Miah";
+    money = 50000;
+    career = Some career1;
+    position = actionspot;
+    houses = [];
+    pegs = 1;
+    has_degree = true;
+  }
+
 let add1player1 =
   {
     name = "Miah";
@@ -41,7 +63,18 @@ let add1player1 =
 let darielis =
   {
     name = "Darielis";
-    money = 150000;
+    money = 400000;
+    career = Some career1;
+    position = actionspot;
+    houses = [];
+    pegs = 2;
+    has_degree = true;
+  }
+
+let darielis2 =
+  {
+    name = "Darielis";
+    money = 500000;
     career = Some career1;
     position = actionspot;
     houses = [];
@@ -60,10 +93,77 @@ let add2player1 =
     has_degree = true;
   }
 
+let sadeen =
+  {
+    name = "Sadeen";
+    money = 1500000;
+    career = None;
+    position = actionspot;
+    houses = [];
+    pegs = 2;
+    has_degree = true;
+  }
+
 let game1 =
   {
     current_player = player1;
     active_players = [ player1 ];
+    retired_players = [];
+    game_board = [];
+  }
+
+let bonusgame1 =
+  {
+    current_player = bonusplayer1;
+    active_players = [ bonusplayer1 ];
+    retired_players = [];
+    game_board = [];
+  }
+
+let minusgame1 =
+  {
+    current_player = minusplayer1;
+    active_players = [ minusplayer1 ];
+    retired_players = [];
+    game_board = [];
+  }
+
+let game2 =
+  {
+    current_player = player1;
+    active_players = [];
+    retired_players = [ player1 ];
+    game_board = [];
+  }
+
+let game3 =
+  {
+    current_player = sadeen;
+    active_players = [ player1; darielis ];
+    retired_players = [];
+    game_board = [];
+  }
+
+let game4 =
+  {
+    current_player = darielis;
+    active_players = [ player1; darielis ];
+    retired_players = [];
+    game_board = [];
+  }
+
+let game5 =
+  {
+    current_player = player1;
+    active_players = [ player1; darielis; bonusplayer1 ];
+    retired_players = [];
+    game_board = [];
+  }
+
+let switchgame5 =
+  {
+    current_player = darielis;
+    active_players = [ darielis; bonusplayer1; player1 ];
     retired_players = [];
     game_board = [];
   }
@@ -102,11 +202,22 @@ let parse_test (name : string) (input : string) (expected_output : command) :
 let find_max_test (name : string) (player : 'a) assoc_list
     (expected_output : 'b * 'b list) : test =
   name >:: fun _ ->
-  assert_equal expected_output (Game.find_max (player) assoc_list)
+  assert_equal expected_output (Game.find_max player assoc_list)
 
 let active_players_test (name : string) input (expected_output : player list) :
     test =
   name >:: fun _ -> assert_equal expected_output (Game.active_players input)
+
+let pay_current_player_test (name : string) input amt expected_output : test =
+  name >:: fun _ ->
+  assert_equal expected_output (Game.pay_current_player input amt)
+
+let pass_a_payday_test (name : string) input expected_output : test =
+  name >:: fun _ -> assert_equal expected_output (Game.pass_a_payday input)
+
+let switch_active_player_test (name : string) input expected_output : test =
+  name >:: fun _ ->
+  assert_equal expected_output (Game.switch_active_player input)
 
 let current_player_test (name : string) input (expected_output : player) : test
     =
@@ -185,10 +296,24 @@ let spin_tests =
   ]
 
 let active_player_tests =
-  [ active_players_test "Check active players list" game1 [ player1 ] ]
+  [
+    active_players_test "One active player" game1 [ player1 ];
+    active_players_test "No active players" game2 [];
+    active_players_test "Multiple active players" game3 [ player1; darielis ];
+  ]
 
 let current_player_tests =
-  [ current_player_test "Check current player" game1 player1 ]
+  [
+    current_player_test "player1 is current" game1 player1;
+    current_player_test "sadeen is curremt" game3 sadeen;
+  ]
+
+let pay_current_player_tests =
+  [
+    pay_current_player_test "bonus is 0" game1 0 game1;
+    pay_current_player_test "bonus is positive" game1 100000 bonusgame1;
+    pay_current_player_test "bonus is negative" game1 (-100000) minusgame1;
+  ]
 
 let add_peg_tests =
   [
@@ -215,10 +340,27 @@ let add_peg_tests =
       };
   ]
 
+let pass_a_payday_tests =
+  [
+    pass_a_payday_test "Player has no job" game3
+      {
+        current_player = sadeen;
+        active_players = [ player1; darielis ];
+        retired_players = [];
+        game_board = [];
+      };
+  ]
+
 let get_next_position_tests =
   [
     get_next_position_test "next is None" actionspot None;
     get_next_position_test "next is Action" before_action (Some actionspot);
+  ]
+
+let switch_active_player_tests =
+  [
+    switch_active_player_test "no active players" game2 game2;
+    switch_active_player_test "multiple active players" game5 switchgame5;
   ]
 
 let find_max_tests =
@@ -251,7 +393,9 @@ let game_tests =
     current_player_tests;
     add_peg_tests;
     get_next_position_tests;
-    find_max_tests;
+    pass_a_payday_tests;
+    pay_current_player_tests;
+    switch_active_player_tests;
   ]
 
 let suite = "test suite for Game of Life" >::: List.flatten game_tests

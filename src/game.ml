@@ -624,11 +624,19 @@ let add_pegs g amt =
       game_board = g.game_board;
     }
   in
-  print_endline
-    (updated_game.current_player.name ^ "you have "
-    ^ string_of_int updated_game.current_player.pegs
-    ^ " pegs");
-  updated_game
+  match updated_game.current_player.pegs with
+  | 1 ->
+      print_endline
+        (updated_game.current_player.name ^ " you have "
+        ^ string_of_int updated_game.current_player.pegs
+        ^ " peg");
+      updated_game
+  | _ ->
+      print_endline
+        (updated_game.current_player.name ^ " you have "
+        ^ string_of_int updated_game.current_player.pegs
+        ^ " pegs");
+      updated_game
 
 let graduation_stop_operation g =
   match g.current_player.career with
@@ -920,7 +928,9 @@ let rec pick_career_card game (card_drawn : Cards.career_card) =
       pick_career_card game card_drawn
 
 let rec career_stop_op_helper game career_card_list =
-  print_endline {|Type "draw" to draw a career card: |};
+  print_endline
+    (game.current_player.name
+   ^ {| ,you landed on a career spot, Type "draw" to draw a career card: |});
   try
     match Command.parse (read_line ()) with
     | Draw ->
@@ -1290,15 +1300,27 @@ let landed_spot_operations g =
       landed_house_op g |> switch_active_player
       (*function to draw a house card ask if player wants to buy, and *)
   | Friend _ ->
+      print_endline
+        (g.current_player.name
+       ^ " ,you landed on a friend spot, one peg will be added to your total!");
       add_pegs g 1
       |> switch_active_player (*function to perform add peg choice*)
   | Pet _ ->
+      print_endline
+        (g.current_player.name
+       ^ " ,you landed on a pet spot, one peg will be added to your total!");
       add_pegs g 1
       |> switch_active_player (*function to perform add peg choice*)
   | Baby _ ->
+      print_endline
+        (g.current_player.name
+       ^ " ,you landed on a baby spot, one peg will be added to your total!");
       add_pegs g 1
       |> switch_active_player (*function to perform add peg choice*)
   | Twins _ ->
+      print_endline
+        (g.current_player.name
+       ^ " ,you landed on a twins spot, two pegs will be added to your total!");
       add_pegs g 2
       |> switch_active_player (*function to perform add peg choice*)
   | Career _ ->

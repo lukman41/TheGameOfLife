@@ -733,7 +733,6 @@ let rec family_stop_op game =
       family_stop_op game
 
 let rec spin_action_card () : int =
-  print_endline {|Type "draw" to draw an action card: |};
   try
     match Command.parse (read_line ()) with
     | Spin -> spin
@@ -1200,8 +1199,10 @@ let rec buy_house_op house game =
 
 let rec landed_house_op game =
   print_endline
-    "You are either going through a mid-life crisis or you have landed on a house spot!"; 
-    print_endline "Hopefully, it's the second one. To draw a house card, type 'draw'.";
+    "You are either going through a mid-life crisis or you have landed on a \
+     house spot!";
+  print_endline
+    "Hopefully, it's the second one. To draw a house card, type 'draw'.";
   try
     match Command.parse (read_line ()) with
     | Draw ->
@@ -1256,7 +1257,8 @@ let rec crisis_stop_op g =
      crisis, ";
   print_endline "and you are considering making changes to your life.";
   print_endline
-    "You are able to purchase a(nother) house, sell a house you own or change your career.";
+    "You are able to purchase a(nother) house, sell a house you own or change \
+     your career.";
   print_endline {|To purchase/sell a house, type "change house"|};
   print_endline {|To change your career, type "change career"|};
   print_endline {|To change nothing, type "change nothing"|};
@@ -1303,7 +1305,7 @@ let landed_spot_operations g =
   (*all functions should return updated game.t*)
   match g.current_player.position with
   | Start _ -> failwith "unimplemented"
-  | Retire _ -> 
+  | Retire _ ->
       move_player_to_retired g
       (*function to take player out of game so they can wait for other players
         to finish*)
@@ -1320,7 +1322,7 @@ let landed_spot_operations g =
   | GraduationStop { next } ->
       graduation_stop_operation g |> switch_active_player
       (* function to perform stop choice and check if you graduated *)
-  | House _ -> 
+  | House _ ->
       landed_house_op g |> switch_active_player
       (*function to draw a house card ask if player wants to buy, and *)
   | Friend _ ->

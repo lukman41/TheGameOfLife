@@ -1199,6 +1199,9 @@ let rec buy_house_op house game =
       buy_house_op house game
 
 let rec landed_house_op game =
+  print_endline
+    "You are either going through a mid-life crisis or you have landed on a house spot!"; 
+    print_endline "Hopefully, it's the second one. To draw a house card, type 'draw'.";
   try
     match Command.parse (read_line ()) with
     | Draw ->
@@ -1317,9 +1320,7 @@ let landed_spot_operations g =
   | GraduationStop { next } ->
       graduation_stop_operation g |> switch_active_player
       (* function to perform stop choice and check if you graduated *)
-  | House _ -> print_endline
-    "You are either going through a mid-life crisis or you have landed on a house spot!"; 
-    print_endline "Hopefully, it's the second one. To draw a house card, type 'draw'.";
+  | House _ -> 
       landed_house_op g |> switch_active_player
       (*function to draw a house card ask if player wants to buy, and *)
   | Friend _ ->

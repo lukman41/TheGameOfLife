@@ -1,4 +1,14 @@
 open OUnit2
+(** Test plan: Tested functions that computed values within the game using OUnit
+    testing. Manually tested all remaining functions and functionality by
+    playing the game using 'make play'. Tested a combination of glass-box and
+    black-box testing to test module Game and module Command and module Cards.
+    This testing plan demonstrates the correctness of the system because we were
+    able to test the computation of values using OUnit testing, as well as test
+    the text displayed in the terminal (user interface) to the user using 'make
+    play.' Seeing that both of these were correct, we were able to conclude that
+    the system is correct. *)
+
 open Game_of_life
 open Game
 open Command

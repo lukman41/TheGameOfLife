@@ -50,11 +50,46 @@
       "requires_degree": true
     },
     {
-      "id": 2,
-      "name": "Veterinarian",
+      "id": 3,
+      "name": "Salesperson",
+      "salary": 50000,
+      "bonus_salary": 90000,
+      "requires_degree": false
+    },
+    {
+      "id": 4,
+      "name": "Hair Stylist",
+      "salary": 60000,
+      "bonus_salary": 100000,
+      "requires_degree": false
+    },
+    {
+      "id": 5,
+      "name": "Mechanic",
+      "salary": 60000,
+      "bonus_salary": 100000,
+      "requires_degree": false
+    },
+    {
+      "id": 6,
+      "name": "Police Officer",
       "salary": 70000,
       "bonus_salary": 110000,
-      "requires_degree": true
+      "requires_degree": false
+    },
+    {
+      "id": 7,
+      "name": "Entertainer",
+      "salary": 50000,
+      "bonus_salary": 90000,
+      "requires_degree": false
+    },
+    {
+      "id": 8,
+      "name": "Athlete",
+      "salary": 60000,
+      "bonus_salary": 110000,
+      "requires_degree": false
     }
   ]
 }

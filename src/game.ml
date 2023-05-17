@@ -660,7 +660,7 @@ let add_pegs g amt =
 let graduation_stop_operation g =
   match g.current_player.career with
   | None ->
-      print_endline "You Graduated. Now Pick a career!";
+      print_endline "You graduated. Now pick a career!";
       let updated_player =
         {
           name = g.current_player.name;
@@ -733,7 +733,6 @@ let rec family_stop_op game =
       family_stop_op game
 
 let rec spin_action_card () : int =
-  print_endline {|Type "draw" to draw an action card: |};
   try
     match Command.parse (read_line ()) with
     | Spin -> spin
@@ -1074,7 +1073,7 @@ let rec sell_house_op (house : house) game =
     }
   in
   print_endline
-    (updated_player.name ^ " ,you now have "
+    (updated_player.name ^ ", you now have "
     ^ string_of_int updated_player.money);
   let updated_game =
     {
@@ -1095,7 +1094,7 @@ let rec check_all_houses (house_list : house list) game =
         print_endline ("Price: " ^ string_of_int house.purchase_price);
         print_endline ("Even: " ^ string_of_int house.sell_even);
         print_endline ("Odd: " ^ string_of_int house.sell_odd);
-        print_endline "Would you like to sell this house? Yes/No.";
+        print_endline "Would you like to sell this house? yes/no.";
         try
           match Command.parse (read_line ()) with
           | Choose i -> (
@@ -1200,7 +1199,10 @@ let rec buy_house_op house game =
 
 let rec landed_house_op game =
   print_endline
-    "You have landed on a house spot! To draw a house card, type 'draw'.";
+    "You are either going through a mid-life crisis or you have landed on a \
+     house spot!";
+  print_endline
+    "Hopefully, it's the second one. To draw a house card, type 'draw'.";
   try
     match Command.parse (read_line ()) with
     | Draw ->
@@ -1210,7 +1212,7 @@ let rec landed_house_op game =
         print_endline ("Even: " ^ string_of_int house_card.even_amount);
         print_endline ("Odd: " ^ string_of_int house_card.odd_amount);
         print_newline ();
-        print_endline "Would you like to purchase this house? Yes/No.";
+        print_endline "Would you like to purchase this house? yes/no.";
         print_endline
           {|to make a choice, type "choose" before the choice you want to make|};
         let house =
@@ -1242,20 +1244,22 @@ let rec landed_house_op game =
   with
   | Empty ->
       ANSITerminal.print_string [ ANSITerminal.red ]
-        {|That command was empty, try "draw"  |};
+        {|That command was empty, try "draw" |};
       landed_house_op game
   | Malformed ->
       ANSITerminal.print_string [ ANSITerminal.red ]
-        {|That command was malformed, try "draw"  |};
+        {|That command was malformed, try "draw" |};
       landed_house_op game
 
 let rec crisis_stop_op g =
   print_endline
     "You have reached a Crisis Stop! You're currently going through a mid-Life \
-     crisis, and you are considering making changes to your life.";
+     crisis, ";
+  print_endline "and you are considering making changes to your life.";
   print_endline
-    "You are able to change your sell your house or change your career";
-  print_endline {|To sell your house, type "change house"|};
+    "You are able to purchase a(nother) house, sell a house you own or change \
+     your career.";
+  print_endline {|To purchase/sell a house, type "change house"|};
   print_endline {|To change your career, type "change career"|};
   print_endline {|To change nothing, type "change nothing"|};
   try
@@ -1324,25 +1328,25 @@ let landed_spot_operations g =
   | Friend _ ->
       print_endline
         (g.current_player.name
-       ^ " ,you landed on a friend spot, one peg will be added to your total!");
+       ^ ", you landed on a friend spot, one peg will be added to your total!");
       add_pegs g 1
       |> switch_active_player (*function to perform add peg choice*)
   | Pet _ ->
       print_endline
         (g.current_player.name
-       ^ " ,you landed on a pet spot, one peg will be added to your total!");
+       ^ ", you landed on a pet spot, one peg will be added to your total!");
       add_pegs g 1
       |> switch_active_player (*function to perform add peg choice*)
   | Baby _ ->
       print_endline
         (g.current_player.name
-       ^ " ,you landed on a baby spot, one peg will be added to your total!");
+       ^ ", you landed on a baby spot, one peg will be added to your total!");
       add_pegs g 1
       |> switch_active_player (*function to perform add peg choice*)
   | Twins _ ->
       print_endline
         (g.current_player.name
-       ^ " ,you landed on a twins spot, two pegs will be added to your total!");
+       ^ ", you landed on a twins spot, two pegs will be added to your total!");
       add_pegs g 2
       |> switch_active_player (*function to perform add peg choice*)
   | Career _ ->

@@ -1,7 +1,7 @@
 open Game_of_life
 open Game
 open Command
-open Board
+
 
 let rec play g =
   (*this function should take in a game state

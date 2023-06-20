@@ -1,7 +1,7 @@
 open Yojson.Basic.Util
 open ANSITerminal
 open Command
-open Cards
+
 
 let data_dir_prefix = "data" ^ Filename.dir_sep
 

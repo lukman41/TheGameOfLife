@@ -3,7 +3,7 @@
     {
       "id": 1,
       "name": "Don't postpone joy!",
-      "prompt": "It's time to buy that pony you've always wanted. Pay 40k to the bank"
+      "prompt": "It's time to buy that pony you've always wanted. Pay 40k to the bank",
       "amount": -40000
     }
   ],
